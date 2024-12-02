@@ -29,7 +29,7 @@ namespace VideoTheque.Repositories.AgeRating
             var ageRatingToUpdate = _db.AgeRatings.FindAsync(id).Result;
             if (ageRatingToUpdate is null)
             {
-                throw new KeyNotFoundException($"Age rating '{id}' non trouvé");
+                throw new KeyNotFoundException($"Age rating '{id}' non trouvÃ©");
             }
             ageRatingToUpdate.Name = ageRating.Name;
             ageRatingToUpdate.Abreviation = ageRating.Abreviation;
@@ -41,7 +41,7 @@ namespace VideoTheque.Repositories.AgeRating
             var ageRatingToDelete = _db.AgeRatings.FindAsync(id).Result;
             if (ageRatingToDelete is null)
             {
-                throw new KeyNotFoundException($"Age rating '{id}' non trouvé");
+                throw new KeyNotFoundException($"Age rating '{id}' non trouvÃ©");
             }
             _db.AgeRatings.Remove(ageRatingToDelete);
             await _db.SaveChangesAsync();
