@@ -23,7 +23,15 @@ namespace VideoTheque.Repositories.Film
 
         public Task DeleteBluRay(Int32 id)
         {
-            throw new NotImplementedException();
+            var bluRayToDelete = _db.BluRays.FindAsync(id).Result;
+            
+            if (bluRayToDelete is null)
+            {
+                throw new KeyNotFoundException($"BluRay '{id}' non trouvé");
+            }
+            
+            _db.BluRays.Remove(bluRayToDelete);
+            return _db.SaveChangesAsync();
         }
 
         public Task UpdateBluRay(int id, BluRayDto bluRay)
