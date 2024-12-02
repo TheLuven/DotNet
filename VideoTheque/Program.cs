@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using VideoTheque.Businesses.AgeRating;
 using VideoTheque.Businesses.Film;
 using VideoTheque.Businesses.Genres;
+using VideoTheque.Businesses.Host;
 using VideoTheque.Businesses.Personne;
 using VideoTheque.Businesses.Support;
 using VideoTheque.Context;
@@ -10,6 +11,7 @@ using VideoTheque.Core;
 using VideoTheque.Repositories.AgeRating;
 using VideoTheque.Repositories.Film;
 using VideoTheque.Repositories.Genres;
+using VideoTheque.Repositories.Host;
 using VideoTheque.Repositories.PersonneRepository;
 using VideoTheque.Repositories.Support;
 
@@ -42,6 +44,9 @@ builder.Services.AddScoped(typeof(IBluRayBusiness), typeof(BluRayBusiness));
 
 builder.Services.AddScoped(typeof(ISupportRepository), typeof(SupportRepository));
 builder.Services.AddScoped(typeof(ISupportBusiness), typeof(SupportBusiness));
+
+builder.Services.AddScoped(typeof(IHostRepository), typeof(HostRepository));
+builder.Services.AddScoped(typeof(IHostBusiness), typeof(HostBusiness));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
