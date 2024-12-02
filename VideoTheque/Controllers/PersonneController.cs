@@ -1,6 +1,6 @@
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using VideoTheque.Businesses;
+using VideoTheque.Businesses.Personne;
 using VideoTheque.DTOs;
 using VideoTheque.ViewModels;
 

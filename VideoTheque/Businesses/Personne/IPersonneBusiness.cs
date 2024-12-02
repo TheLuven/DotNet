@@ -1,6 +1,6 @@
 using VideoTheque.DTOs;
 
-namespace VideoTheque.Businesses
+namespace VideoTheque.Businesses.Personne
 {
     public interface IPersonneBusiness
     {

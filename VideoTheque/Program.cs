@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.OpenApi.Models;
 using VideoTheque.Businesses.Genres;
+using VideoTheque.Businesses.Personne;
 using VideoTheque.Context;
 using VideoTheque.Core;
 using VideoTheque.Repositories.Genres;
+using VideoTheque.Repositories.PersonneRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,13 +25,16 @@ builder.Services.AddSqlite<VideothequeDb>(connectionString);
 builder.Services.AddScoped(typeof(IGenresRepository), typeof(GenresRepository));
 builder.Services.AddScoped(typeof(IGenresBusiness), typeof(GenresBusiness));
 
+builder.Services.AddScoped(typeof(IPersonneRepository), typeof(PersonneRepository));
+builder.Services.AddScoped(typeof(IPersonneBusiness), typeof(PersonneBusiness));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "VidéoThéque API",
+        Title = "Vidï¿½oThï¿½que API",
         Description = "Gestion de sa collection de film.",
         Version = "v1"
     });
@@ -51,7 +56,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "VidéoThèque API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vidï¿½oThï¿½que API V1");
     });
 }
 

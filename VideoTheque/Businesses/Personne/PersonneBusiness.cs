@@ -1,8 +1,9 @@
+using VideoTheque.Businesses.Personne;
 using VideoTheque.Core;
 using VideoTheque.DTOs;
 using VideoTheque.Repositories.PersonneRepository;
 
-namespace VideoTheque.Businesses
+namespace VideoTheque.Businesses.Personne
 {
     public class PersonneBusiness : IPersonneBusiness
     {
