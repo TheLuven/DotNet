@@ -20,10 +20,10 @@ namespace VideoTheque.Controllers
         }
         
         [HttpGet]
-        public async Task<List<BluRayDto>> GetBluRays() => await _bluRayBusiness.GetBluRays();
+        public async Task<List<BluRayViewModel>> GetBluRays() => (await _bluRayBusiness.GetBluRays()).Adapt<List<BluRayViewModel>>();
         
         [HttpGet("{id}")]
-        public async Task<BluRayDto> GetBluRay([FromRoute] int id) => _bluRayBusiness.GetBluRay(id);
+        public async Task<BluRayViewModel> GetBluRay([FromRoute] int id) => _bluRayBusiness.GetBluRay(id).Adapt<BluRayViewModel>();
         
         [HttpPost]
         public async Task<IResult> InsertBluRay([FromBody] BluRayViewModel bluRayVM)
