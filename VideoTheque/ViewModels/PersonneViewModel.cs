@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Mapster;
 using Newtonsoft.Json;
 using VideoTheque.DTOs;
 
@@ -26,15 +27,15 @@ namespace VideoTheque.ViewModels
         [Required]
         public string Nationality { get; set; }
 
-        public PersonneDto ToDto()
+        public PersonneDto ToDto(PersonneDto dto)
         {
             return new PersonneDto
             {
-                Id = this.Id,
-                FirstName = this.Firstname,
-                LastName = this.Lastname,
-                BirthDay = DateTime.Parse(this.Birthdate),
-                Nationality = this.Nationality
+                Id = dto.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                BirthDay = dto.BirthDay,
+                Nationality = dto.Nationality
             };
         }
 
