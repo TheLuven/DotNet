@@ -14,7 +14,7 @@ namespace VideoTheque.ViewModels
         [Required]
         public string Prénom { get; set; }
         
-        [JsonPropertyName("lastname")]
+        [JsonPropertyName("firstname")]
         [Required]
         public string Nom { get; set; }
         
