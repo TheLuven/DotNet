@@ -20,22 +20,22 @@ namespace VideoTheque.Controllers
         }
         
         [HttpGet]
-        public async Task<List<BluRayViewModel>> GetBluRays() => (await _bluRayBusiness.GetBluRays()).Adapt<List<BluRayViewModel>>();
+        public async Task<List<FilmViewModel>> GetBluRays() => (await _bluRayBusiness.GetBluRays()).Adapt<List<FilmViewModel>>();
         
         [HttpGet("{id}")]
-        public async Task<BluRayViewModel> GetBluRay([FromRoute] int id) => _bluRayBusiness.GetBluRay(id).Adapt<BluRayViewModel>();
+        public async Task<FilmViewModel> GetBluRay([FromRoute] int id) => _bluRayBusiness.GetBluRay(id).Adapt<FilmViewModel>();
         
         [HttpPost]
-        public async Task<IResult> InsertBluRay([FromBody] BluRayViewModel bluRayVM)
+        public async Task<IResult> InsertBluRay([FromBody] FilmViewModel filmVm)
         {
-            var created = _bluRayBusiness.InsertBluRay(bluRayVM.Adapt<BluRayDto>());
+            var created = _bluRayBusiness.InsertBluRay(filmVm.Adapt<BluRayDto>());
             return Results.Created($"/films/{created.Id}", created);
         }
         
         [HttpPut("{id}")]
-        public async Task<IResult> UpdateBluRay([FromRoute] int id, [FromBody] BluRayViewModel bluRayVM)
+        public async Task<IResult> UpdateBluRay([FromRoute] int id, [FromBody] FilmViewModel filmVm)
         {
-            _bluRayBusiness.UpdateBluRay(id, bluRayVM.Adapt<BluRayDto>());
+            _bluRayBusiness.UpdateBluRay(id, filmVm.Adapt<BluRayDto>());
             return Results.NoContent();
         }
         
