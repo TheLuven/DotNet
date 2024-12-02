@@ -24,26 +24,39 @@ namespace VideoTheque.Businesses.Film
             _ageRatingRepository = ageRatingRepository;
         }
 
-
-        public Task<List<FilmDto>> GetBluRays()
+        private string GetPersonFullName(int personId)
         {
-            // Get all BluRays then return them in a FilmDto list after parsing ID to string
-            return _filmDao.GetBluRays().ContinueWith(task =>
+            var person = _personneDao.GetPersonne(personId).Result;
+            return person != null ? $"{person.LastName} {person.FirstName}" : "Unknown";
+        }
+
+        private string GetAgeRatingName(int ageRatingId)
+        {
+            var ageRating = _ageRatingRepository.GetAgeRating(ageRatingId).Result;
+            return ageRating?.Name ?? "Unknown";
+        }
+
+        private string GetGenreName(int genreId)
+        {
+            var genre = _genresRepository.GetGenre(genreId).Result;
+            return genre?.Name ?? "Unknown";
+        }
+
+        public async Task<List<FilmDto>> GetBluRays()
+        {
+            var bluRays = await _filmDao.GetBluRays();
+            return bluRays.Select(film => new FilmDto
             {
-                return task.Result.Select(film => 
-                    new FilmDto
-                {
-                    Id = film.Id,
-                    Title = film.Title,
-                    Duration = film.Duration,
-                    FirstActor = _personneDao.GetPersonne(film.IdFirstActor).Result.LastName+" "+_personneDao.GetPersonne(film.IdFirstActor).Result.FirstName,
-                    Director = _personneDao.GetPersonne(film.IdDirector).Result.LastName+" "+_personneDao.GetPersonne(film.IdDirector).Result.FirstName,
-                    Scenarist = _personneDao.GetPersonne(film.IdScenarist).Result.LastName+" "+_personneDao.GetPersonne(film.IdScenarist).Result.FirstName,
-                    AgeRating = _ageRatingRepository.GetAgeRating(film.IdAgeRating).Result.Name,
-                    Genre = _genresRepository.GetGenre(film.IdGenre).Result.Name,
-                    Support = "Blu-Ray"
-                }).ToList();
-            });
+                Id = film.Id,
+                Title = film.Title,
+                Duration = film.Duration,
+                FirstActor = GetPersonFullName(film.IdFirstActor),
+                Director = GetPersonFullName(film.IdDirector),
+                Scenarist = GetPersonFullName(film.IdScenarist),
+                AgeRating = GetAgeRatingName(film.IdAgeRating),
+                Genre = GetGenreName(film.IdGenre),
+                Support = "Blu-Ray"
+            }).ToList();
         }
 
         public BluRayDto InsertBluRay(BluRayDto film)
@@ -86,11 +99,11 @@ namespace VideoTheque.Businesses.Film
                 Id = film.Id,
                 Title = film.Title,
                 Duration = film.Duration,
-                FirstActor = _personneDao.GetPersonne(film.IdFirstActor).Result.LastName+" "+_personneDao.GetPersonne(film.IdFirstActor).Result.FirstName,
-                Director = _personneDao.GetPersonne(film.IdDirector).Result.LastName+" "+_personneDao.GetPersonne(film.IdDirector).Result.FirstName,
-                Scenarist = _personneDao.GetPersonne(film.IdScenarist).Result.LastName+" "+_personneDao.GetPersonne(film.IdScenarist).Result.FirstName,
-                AgeRating = _ageRatingRepository.GetAgeRating(film.IdAgeRating).Result.Name,
-                Genre = _genresRepository.GetGenre(film.IdGenre).Result.Name,
+                FirstActor = GetPersonFullName(film.IdFirstActor),
+                Director = GetPersonFullName(film.IdDirector),
+                Scenarist = GetPersonFullName(film.IdScenarist),
+                AgeRating = GetAgeRatingName(film.IdAgeRating),
+                Genre = GetGenreName(film.IdGenre),
                 Support = "Blu-Ray"
             };
         }
