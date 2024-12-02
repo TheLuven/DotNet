@@ -16,26 +16,5 @@ namespace VideoTheque.ViewModels
         [JsonPropertyName("url")]
         [Required]
         public string Url { get; set; }
-        
-        public HostDto ToDto()
-        {
-            return new HostDto
-            {
-                Id = this.Id,
-                Name = this.Name,
-                Url = this.Url
-            };
-        }
-        
-        public static HostViewModel ToModel(HostDto dto)
-        {
-            return new HostViewModel
-            {
-                Id = dto.Id,
-                Name = dto.Name,
-                Url = dto.Url
-            };
-        }
-        
     }
 }

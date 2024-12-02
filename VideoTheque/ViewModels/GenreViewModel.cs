@@ -12,23 +12,5 @@ namespace VideoTheque.ViewModels
         [JsonPropertyName("nom")]
         [Required]
         public string Name { get; set; }
-
-        public GenreDto ToDto()
-        {
-            return new GenreDto
-            {
-                Id = this.Id,
-                Name = this.Name
-            };
-        }
-
-        public static GenreViewModel ToModel(GenreDto dto)
-        {
-            return new GenreViewModel
-            {
-                Id = dto.Id,
-                Name = dto.Name
-            };
-        }
     }
 }
