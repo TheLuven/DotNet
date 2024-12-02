@@ -16,15 +16,7 @@ namespace VideoTheque.Businesses.Film
         }
 
 
-        public Task<List<BluRayDto>> GetBluRays()
-        {
-            var films = _filmDao.GetBluRays().Result;
-            
-            if (films == null)
-            {
-                throw new NotFoundException("Aucun film trouvé");
-            }
-        }
+        public Task<List<BluRayDto>> GetBluRays() => _filmDao.GetBluRays();
 
         public BluRayDto InsertBluRay(BluRayDto film)
         {
@@ -36,7 +28,7 @@ namespace VideoTheque.Businesses.Film
             return film;
         }
 
-        public Void DeleteBluRay(int id)
+        public void DeleteBluRay(int id)
         {
             if (_filmDao.DeleteBluRay(id).IsFaulted)
             {
@@ -44,7 +36,7 @@ namespace VideoTheque.Businesses.Film
             }
         }
 
-        public Void UpdateBluRay(int id, BluRayDto film)
+        public void UpdateBluRay(int id, BluRayDto film)
         {
             if (_filmDao.UpdateBluRay(id, film).IsFaulted)
             {
