@@ -10,31 +10,31 @@ namespace VideoTheque.ViewModels
         [JsonPropertyName("id")]
         public int Id { get; set; }
         
-        [JsonPropertyName("surname")]
+        [JsonPropertyName("lastname")]
         [Required]
-        public string Prénom { get; set; }
+        public string Lastname { get; set; }
         
         [JsonPropertyName("firstname")]
         [Required]
-        public string Nom { get; set; }
+        public string Firstname { get; set; }
         
         [JsonPropertyName("birthdate")]
         [Required]
-        public string DateNaissance { get; set; }
+        public string Birthdate { get; set; }
         
         [JsonPropertyName("nationality")]
         [Required]
-        public string Nationalité { get; set; }
+        public string Nationality { get; set; }
 
         public PersonneDto ToDto()
         {
             return new PersonneDto
             {
                 Id = this.Id,
-                FirstName = this.Prénom,
-                LastName = this.Nom,
-                BirthDay = DateTime.Parse(this.DateNaissance),
-                Nationality = this.Nationalité
+                FirstName = this.Firstname,
+                LastName = this.Lastname,
+                BirthDay = DateTime.Parse(this.Birthdate),
+                Nationality = this.Nationality
             };
         }
 
