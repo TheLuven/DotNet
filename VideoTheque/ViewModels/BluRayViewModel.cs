@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using VideoTheque.DTOs;
 
 namespace VideoTheque.ViewModels
@@ -17,7 +19,7 @@ namespace VideoTheque.ViewModels
         
         [JsonPropertyName("duree")]
         [Required]
-        public int Duration { get; set; }
+        public long Duration { get; set; }
         
         [JsonPropertyName("support")]
         [Required]
@@ -44,13 +46,13 @@ namespace VideoTheque.ViewModels
             return new BluRayDto
             {
                 Id = this.Id,
-                IdDirector = this.Director,
-                IdScenarist = this.Writer,
+                IdDirector = int.Parse(this.Director),
+                IdScenarist = int.Parse(this.Writer),
                 Duration = this.Duration,
-                IdAgeRating = this.AgeRating,
-                IdGenre = this.Genre,
+                IdAgeRating = int.Parse(this.AgeRating),
+                IdGenre = int.Parse(this.Genre),
                 Title = this.Title,
-                IdFirstActor = this.MainActor
+                IdFirstActor = int.Parse(this.MainActor)
             };
         }
         public static BluRayViewModel ToModel(BluRayDto dto)
@@ -58,14 +60,14 @@ namespace VideoTheque.ViewModels
             return new BluRayViewModel
             {
                 Id = dto.Id,
-                Director = dto.IdDirector,
-                Writer = dto.IdScenarist,
+                Director = dto.IdDirector.ToString(),
+                Writer = dto.IdScenarist.ToString(),
                 Duration = dto.Duration,
                 Support = "Blu-Ray",
-                AgeRating = dto.IdAgeRating,
-                Genre = dto.IdGenre,
+                AgeRating = dto.IdAgeRating.ToString(),
+                Genre = dto.IdGenre.ToString(),
                 Title = dto.Title,
-                MainActor = dto.IdFirstActor
+                MainActor = dto.IdFirstActor.ToString()
             };
         }
         

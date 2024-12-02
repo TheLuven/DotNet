@@ -1,3 +1,4 @@
+using System.Data.Entity;
 using VideoTheque.Context;
 using VideoTheque.DTOs;
 
@@ -33,6 +34,7 @@ namespace VideoTheque.Repositories.Film
             {
                 throw new KeyNotFoundException($"BluRay '{id}' non trouvé");
             }
+            
             bluRayToUpdate.Title = bluRay.Title;
             bluRayToUpdate.Duration = bluRay.Duration;
             bluRayToUpdate.IdFirstActor = bluRay.IdFirstActor;
@@ -42,6 +44,8 @@ namespace VideoTheque.Repositories.Film
             bluRayToUpdate.IdGenre = bluRay.IdGenre;
             bluRayToUpdate.IsAvailable = bluRay.IsAvailable;
             bluRayToUpdate.IdOwner = bluRay.IdOwner;
+            
+            return _db.SaveChangesAsync();
         }
 
         public ValueTask<BluRayDto?> GetBluRay(int id) => _db.BluRays.FindAsync(id);
