@@ -11,21 +11,25 @@ namespace VideoTheque.ViewModels
         [JsonPropertyName("id")]
         public int Id { get; set; }
         
-        [JsonPropertyName("lastname")]
+        [JsonPropertyName("nom")]
         [Required]
         public string LastName { get; set; }
         
-        [JsonPropertyName("firstname")]
+        [JsonPropertyName("prenom")]
         [Required]
         public string FirstName { get; set; }
         
-        [JsonPropertyName("birthday")]
+        [JsonPropertyName("date-naissance")]
         [Required]
         public string BirthDay { get; set; }
         
-        [JsonPropertyName("nationality")]
+        [JsonPropertyName("nationalite")]
         [Required]
         public string Nationality { get; set; }
+        
+        [JsonPropertyName("nom-prenom")]
+        public string FullName => $"{FirstName} {LastName}";
+
 
         public PersonneDto ToDto()
         {
@@ -46,7 +50,7 @@ namespace VideoTheque.ViewModels
                 Id = dto.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                BirthDay = dto.BirthDay.ToString("yyyy-MM-dd"),
+                BirthDay = dto.BirthDay.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
                 Nationality = dto.Nationality
             };
         }
