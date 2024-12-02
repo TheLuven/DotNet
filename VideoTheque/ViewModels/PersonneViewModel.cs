@@ -27,15 +27,26 @@ namespace VideoTheque.ViewModels
         [Required]
         public string Nationality { get; set; }
 
-        public PersonneDto ToDto(PersonneDto dto)
+        public PersonneDto ToDto()
         {
             return new PersonneDto
             {
+                Id = this.Id,
+                FirstName = this.Firstname,
+                LastName = this.Lastname,
+                BirthDay = DateTime.Parse(this.Birthdate),
+                Nationality = this.Nationality
+            };
+        }
+
+        public static PersonneViewModel ToModel(PersonneDto dto)
+        {
+            return new PersonneViewModel
+            {
                 Id = dto.Id,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                BirthDay = dto.BirthDay,
-                Nationality = dto.Nationality
+                Firstname = dto.FirstName,
+                Lastname = dto.LastName,
+                Birthdate = dto.BirthDay.ToString("yyyy-MM-dd"),
             };
         }
 
