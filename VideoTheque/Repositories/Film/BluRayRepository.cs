@@ -1,4 +1,4 @@
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using VideoTheque.Context;
 using VideoTheque.DTOs;
 
