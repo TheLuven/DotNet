@@ -4,9 +4,9 @@ namespace VideoTheque.Businesses.Film
 {
     public interface IBluRayBusiness
     {
-       Task<List<BluRayDto>> GetBluRays();
+       Task<List<FilmDto>> GetBluRays();
        
-       BluRayDto GetBluRay(int id);
+       FilmDto GetBluRay(int id);
        
        BluRayDto InsertBluRay(BluRayDto film);
        
