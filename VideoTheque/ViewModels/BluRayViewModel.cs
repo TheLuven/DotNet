@@ -11,11 +11,11 @@ namespace VideoTheque.ViewModels
         
         [JsonPropertyName("realisateur")]
         [Required]
-        public string Director { get; set; }
+        public int IdDirector { get; set; }
         
         [JsonPropertyName("scenariste")]
         [Required]
-        public string Writer { get; set; }
+        public int IdWriter { get; set; }
         
         [JsonPropertyName("duree")]
         [Required]
@@ -23,15 +23,15 @@ namespace VideoTheque.ViewModels
         
         [JsonPropertyName("support")]
         [Required]
-        public string Support { get; set; }
+        public int IdSupport { get; set; }
         
         [JsonPropertyName("age-rating")]
         [Required]
-        public string AgeRating { get; set; }
+        public int IdAgeRating { get; set; }
         
         [JsonPropertyName("genre")]
         [Required]
-        public string Genre { get; set; }
+        public int IdGenre { get; set; }
         
         [JsonPropertyName("titre")]
         [Required]
@@ -39,20 +39,20 @@ namespace VideoTheque.ViewModels
         
         [JsonPropertyName("acteur-principal")]
         [Required]
-        public string MainActor { get; set; }
+        public int IdMainActor { get; set; }
         
         public BluRayDto ToDto()
         {
             return new BluRayDto
             {
                 Id = this.Id,
-                IdDirector = int.Parse(this.Director),
-                IdScenarist = int.Parse(this.Writer),
+                IdDirector = this.IdDirector,
+                IdScenarist = this.IdWriter,
                 Duration = this.Duration,
-                IdAgeRating = int.Parse(this.AgeRating),
-                IdGenre = int.Parse(this.Genre),
+                IdAgeRating = this.IdAgeRating,
+                IdGenre = this.IdGenre,
                 Title = this.Title,
-                IdFirstActor = int.Parse(this.MainActor)
+                IdFirstActor = this.IdMainActor
             };
         }
         public static BluRayViewModel ToModel(BluRayDto dto)
@@ -60,14 +60,14 @@ namespace VideoTheque.ViewModels
             return new BluRayViewModel
             {
                 Id = dto.Id,
-                Director = dto.IdDirector.ToString(),
-                Writer = dto.IdScenarist.ToString(),
+                IdDirector = dto.IdDirector,
+                IdWriter = dto.IdScenarist,
                 Duration = dto.Duration,
-                Support = "Blu-Ray",
-                AgeRating = dto.IdAgeRating.ToString(),
-                Genre = dto.IdGenre.ToString(),
+                IdSupport = 1,
+                IdAgeRating = dto.IdAgeRating,
+                IdGenre = dto.IdGenre,
                 Title = dto.Title,
-                MainActor = dto.IdFirstActor.ToString()
+                IdMainActor = dto.IdFirstActor
             };
         }
         
