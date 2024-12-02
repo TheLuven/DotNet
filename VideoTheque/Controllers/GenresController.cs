@@ -26,7 +26,7 @@
         public async Task<GenreViewModel> GetGenre([FromRoute] int id) => _genresBusiness.GetGenre(id).Adapt<GenreViewModel>();
 
         [HttpPost]
-        public async Task<IResult> InsentGenre([FromBody] GenreViewModel genreVM)
+        public async Task<IResult> InsertGenre([FromBody] GenreViewModel genreVM)
         {
             var created = _genresBusiness.InsertGenre(genreVM.Adapt<GenreDto>());
             return Results.Created($"/genres/{created.Id}", created);
