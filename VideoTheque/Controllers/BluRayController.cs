@@ -50,7 +50,6 @@ namespace VideoTheque.Controllers
 
             try
             {
-                // Validate Director
                 var directorNames = filmVm.Director.Split(" ");
                 if (directorNames.Length < 2)
                     return Results.BadRequest("Director's full name is required.");
@@ -58,24 +57,21 @@ namespace VideoTheque.Controllers
                     ?.Adapt<PersonneViewModel>();
                 if (director == null)
                     return Results.NotFound("Director not found.");
-
-                // Validate Writer
+                
                 var writerNames = filmVm.Writer.Split(" ");
                 if (writerNames.Length < 2)
                     return Results.BadRequest("Writer's full name is required.");
                 var writer = _personneBusiness.GetPersonne(writerNames[0], writerNames[1])?.Adapt<PersonneViewModel>();
                 if (writer == null)
                     return Results.NotFound("Writer not found.");
-
-                // Validate Main Actor
+                
                 var actorNames = filmVm.MainActor.Split(" ");
                 if (actorNames.Length < 2)
                     return Results.BadRequest("Main actor's full name is required.");
                 var mainActor = _personneBusiness.GetPersonne(actorNames[0], actorNames[1])?.Adapt<PersonneViewModel>();
                 if (mainActor == null)
                     return Results.NotFound("Main actor not found.");
-
-                // Validate Age Rating and Genre
+                
                 var ageRating = _ageRatingBusiness.GetAgeRating(filmVm.AgeRating);
                 if (ageRating == null)
                     return Results.NotFound("Age rating not found.");
@@ -83,8 +79,7 @@ namespace VideoTheque.Controllers
                 var genre = _genresBusiness.GetGenre(filmVm.Genre);
                 if (genre == null)
                     return Results.NotFound("Genre not found.");
-
-                // Create DTO
+                
                 BluRayDto bluRayDto = new BluRayDto()
                 {
                     Id = filmVm.Id,
