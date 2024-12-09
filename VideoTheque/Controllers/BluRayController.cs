@@ -91,8 +91,7 @@ namespace VideoTheque.Controllers
                     IdGenre = genre.Id,
                     IdFirstActor = mainActor.Id
                 };
-
-                // Insert BluRay
+                
                 var created = _bluRayBusiness.InsertBluRay(bluRayDto);
                 return Results.Created($"/films/{created.Id}", created);
             }

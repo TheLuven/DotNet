@@ -27,7 +27,7 @@ namespace VideoTheque.Businesses.Film
         private string GetPersonFullName(int personId)
         {
             var person = _personneDao.GetPersonne(personId).Result;
-            return person != null ? $"{person.LastName} {person.FirstName}" : "Unknown";
+            return person != null ? $"{person.FirstName} {person.LastName}" : "Unknown";
         }
 
         private string GetAgeRatingName(int ageRatingId)
