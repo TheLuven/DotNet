@@ -21,7 +21,7 @@ namespace VideoTheque.Businesses.AgeRating
 
 			if (ageRating == null)
 			{
-				throw new NotFoundException($"Age rating '{id}' non trouvé");
+				throw new NotFoundException($"Age rating '{id}' non trouvï¿½");
 			}
 
 			return ageRating;
@@ -53,5 +53,17 @@ namespace VideoTheque.Businesses.AgeRating
 				throw new InternalErrorException($"Erreur lors de la suppression du age rating d'identifiant {id}");
 			}
 		}
+        
+        public AgeRatingDto GetAgeRating(string filmVmAgeRating)
+        {
+            var ageRating = _ageRatingDao.GetAgeRating(filmVmAgeRating).Result;
+
+            if (ageRating == null)
+            {
+                throw new NotFoundException($"Age rating '{filmVmAgeRating}' non trouvï¿½");
+            }
+
+            return ageRating;
+        }
 	}
 }

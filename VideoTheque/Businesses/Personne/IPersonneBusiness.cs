@@ -8,6 +8,8 @@ namespace VideoTheque.Businesses.Personne
         
         PersonneDto GetPersonne(int id);
         
+        PersonneDto GetPersonne(string firstName, string lastName);
+        
         PersonneDto InsertPersonne(PersonneDto personne);
         
         void UpdatePersonne(int id, PersonneDto personne);

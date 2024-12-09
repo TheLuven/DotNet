@@ -13,5 +13,6 @@ namespace VideoTheque.Businesses.Genres
         void UpdateGenre(int id, GenreDto genre);
 
         void DeleteGenre(int id);
+        GenreDto GetGenre(string filmVmGenre);
     }
 }

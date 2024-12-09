@@ -14,5 +14,6 @@ namespace VideoTheque.Repositories.AgeRating
         Task UpdateAgeRating(int id, AgeRatingDto ageRating);
 
         Task DeleteAgeRating(int id);
+        Task<AgeRatingDto?> GetAgeRating(string filmVmAgeRating);
     }
 }

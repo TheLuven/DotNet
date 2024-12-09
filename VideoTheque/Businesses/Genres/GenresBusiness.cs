@@ -26,6 +26,18 @@ namespace VideoTheque.Businesses.Genres
 
             return genre;
         }
+        
+        public GenreDto GetGenre(string filmVmGenre)
+        {
+            var genre = _genreDao.GetGenre(filmVmGenre).Result;
+
+            if (genre == null)
+            {
+                throw new NotFoundException($"Genre '{filmVmGenre}' non trouvé");
+            }
+
+            return genre;
+        }
 
         public GenreDto InsertGenre(GenreDto genre)
         {

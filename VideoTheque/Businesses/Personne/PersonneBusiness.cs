@@ -27,6 +27,17 @@ namespace VideoTheque.Businesses.Personne
             return personne;
         }
 
+        public PersonneDto GetPersonne(string firstName, string lastName)
+        {
+            var personne = _personneDao.GetPersonne(firstName,lastName).Result;
+
+            if (personne == null)
+            {
+                throw new NotFoundException($"Personne '{firstName} {lastName}' non trouvée");
+            }
+            return personne;
+        }
+        
         public PersonneDto InsertPersonne(PersonneDto personne)
         {
             if (_personneDao.InsertPersonne(personne).IsFaulted)

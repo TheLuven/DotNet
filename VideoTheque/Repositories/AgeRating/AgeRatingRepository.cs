@@ -17,6 +17,8 @@ namespace VideoTheque.Repositories.AgeRating
         public Task<List<AgeRatingDto>> GetAgeRatings() => _db.AgeRatings.ToListAsync();
 
         public ValueTask<AgeRatingDto?> GetAgeRating(int id) => _db.AgeRatings.FindAsync(id);
+        
+        public Task<AgeRatingDto?> GetAgeRating(string filmVmAgeRating) => _db.AgeRatings.FirstOrDefaultAsync(a => a.Abreviation == filmVmAgeRating);
 
         public async Task InsertAgeRating(AgeRatingDto ageRating)
         {
@@ -46,6 +48,8 @@ namespace VideoTheque.Repositories.AgeRating
             _db.AgeRatings.Remove(ageRatingToDelete);
             await _db.SaveChangesAsync();
         }
+        
+        
 
     }
 }

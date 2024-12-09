@@ -16,6 +16,8 @@ namespace VideoTheque.Repositories.PersonneRepository
         public Task<List<PersonneDto>> GetPersonnes() => _db.Personnes.ToListAsync();
 
         public ValueTask<PersonneDto> GetPersonne(int id) => _db.Personnes.FindAsync(id);
+        
+        public Task<PersonneDto?> GetPersonne(string firstName, string lastName) => _db.Personnes.FirstOrDefaultAsync(p => p.FirstName == firstName || p.LastName == lastName);
 
         public Task DeletePersonne(int id)
         {

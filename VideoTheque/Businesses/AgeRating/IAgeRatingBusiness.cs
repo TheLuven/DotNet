@@ -13,5 +13,6 @@ namespace VideoTheque.Businesses.AgeRating
         void UpdateAgeRating(int id, AgeRatingDto ageRating);
 
         void DeleteAgeRating(int id);
+        AgeRatingDto GetAgeRating(string filmVmAgeRating);
     }
 }
