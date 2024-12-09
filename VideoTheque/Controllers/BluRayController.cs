@@ -19,62 +19,99 @@ namespace VideoTheque.Controllers
         private readonly IAgeRatingBusiness _ageRatingBusiness;
         private readonly IGenresBusiness _genresBusiness;
         protected readonly ILogger<BluRayController> _logger;
-        
+
         public BluRayController(ILogger<BluRayController> logger, IBluRayBusiness bluRayBusiness)
         {
             _logger = logger;
             _bluRayBusiness = bluRayBusiness;
         }
-        
+
         [HttpGet]
-        public async Task<List<FilmViewModel>> GetBluRays() => (await _bluRayBusiness.GetBluRays()).Adapt<List<FilmViewModel>>();
-        
+        public async Task<List<FilmViewModel>> GetBluRays() =>
+            (await _bluRayBusiness.GetBluRays()).Adapt<List<FilmViewModel>>();
+
         [HttpGet("{id}")]
-        public async Task<FilmViewModel> GetBluRay([FromRoute] int id) => _bluRayBusiness.GetBluRay(id).Adapt<FilmViewModel>();
-        
+        public async Task<FilmViewModel> GetBluRay([FromRoute] int id) =>
+            _bluRayBusiness.GetBluRay(id).Adapt<FilmViewModel>();
+
         [HttpPost]
         public async Task<IResult> InsertBluRay([FromBody] FilmViewModel filmVm)
         {
-            int id = filmVm.Id;
-            string title = filmVm.Title;
-            long duration = filmVm.Duration;
-            string director_firstName = filmVm.Director.Split(" ")[0];
-            string director_lastName = filmVm.Director.Split(" ")[1];
-            PersonneViewModel director = _personneBusiness.GetPersonne(director_firstName,director_lastName).Adapt<PersonneViewModel>();
-            int idDirector = director.Id;
-            string writer_firstName = filmVm.Writer.Split(" ")[0];
-            string writer_lastName = filmVm.Writer.Split(" ")[1];
-            PersonneViewModel writer = _personneBusiness.GetPersonne(writer_firstName,writer_lastName).Adapt<PersonneViewModel>();
-            int idScenarist = writer.Id;
-            int idAgeRating = _ageRatingBusiness.GetAgeRating(filmVm.AgeRating).Id;
-            int idGenre = _genresBusiness.GetGenre(filmVm.Genre).Id;
-            string mainActor_firstName = filmVm.MainActor.Split(" ")[0];
-            string mainActor_lastName = filmVm.MainActor.Split(" ")[1];
-            PersonneViewModel mainActor = _personneBusiness.GetPersonne(mainActor_firstName,mainActor_lastName).Adapt<PersonneViewModel>();
-            int idFirstActor = mainActor.Id;
-            
-            BluRayDto bluRayDto = new BluRayDto()
+            if (filmVm == null)
+                return Results.BadRequest("Film data is required.");
+
+            if (string.IsNullOrEmpty(filmVm.Director) || string.IsNullOrEmpty(filmVm.Writer) ||
+                string.IsNullOrEmpty(filmVm.MainActor))
+                return Results.BadRequest("Director, Writer, and Main Actor are required.");
+
+            try
             {
-                Id = id,
-                Title = title,
-                Duration = duration,
-                IdDirector = idDirector,
-                IdScenarist = idScenarist,
-                IdAgeRating = idAgeRating,
-                IdGenre = idGenre,
-                IdFirstActor = idFirstActor
-            };
-            var created = _bluRayBusiness.InsertBluRay(bluRayDto);
-            return Results.Created($"/films/{created.Id}", created);
+                // Validate Director
+                var directorNames = filmVm.Director.Split(" ");
+                if (directorNames.Length < 2)
+                    return Results.BadRequest("Director's full name is required.");
+                var director = _personneBusiness.GetPersonne(directorNames[0], directorNames[1])
+                    ?.Adapt<PersonneViewModel>();
+                if (director == null)
+                    return Results.NotFound("Director not found.");
+
+                // Validate Writer
+                var writerNames = filmVm.Writer.Split(" ");
+                if (writerNames.Length < 2)
+                    return Results.BadRequest("Writer's full name is required.");
+                var writer = _personneBusiness.GetPersonne(writerNames[0], writerNames[1])?.Adapt<PersonneViewModel>();
+                if (writer == null)
+                    return Results.NotFound("Writer not found.");
+
+                // Validate Main Actor
+                var actorNames = filmVm.MainActor.Split(" ");
+                if (actorNames.Length < 2)
+                    return Results.BadRequest("Main actor's full name is required.");
+                var mainActor = _personneBusiness.GetPersonne(actorNames[0], actorNames[1])?.Adapt<PersonneViewModel>();
+                if (mainActor == null)
+                    return Results.NotFound("Main actor not found.");
+
+                // Validate Age Rating and Genre
+                var ageRating = _ageRatingBusiness.GetAgeRating(filmVm.AgeRating);
+                if (ageRating == null)
+                    return Results.NotFound("Age rating not found.");
+
+                var genre = _genresBusiness.GetGenre(filmVm.Genre);
+                if (genre == null)
+                    return Results.NotFound("Genre not found.");
+
+                // Create DTO
+                BluRayDto bluRayDto = new BluRayDto()
+                {
+                    Id = filmVm.Id,
+                    Title = filmVm.Title,
+                    Duration = filmVm.Duration,
+                    IdDirector = director.Id,
+                    IdScenarist = writer.Id,
+                    IdAgeRating = ageRating.Id,
+                    IdGenre = genre.Id,
+                    IdFirstActor = mainActor.Id
+                };
+
+                // Insert BluRay
+                var created = _bluRayBusiness.InsertBluRay(bluRayDto);
+                return Results.Created($"/films/{created.Id}", created);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Results.Problem("An error occurred while processing the request.");
+            }
         }
-        
+
+
         [HttpPut("{id}")]
         public async Task<IResult> UpdateBluRay([FromRoute] int id, [FromBody] FilmViewModel filmVm)
         {
             _bluRayBusiness.UpdateBluRay(id, filmVm.Adapt<BluRayDto>());
             return Results.NoContent();
         }
-        
+
         [HttpDelete("{id}")]
         public async Task<IResult> DeleteBluRay([FromRoute] int id)
         {
