@@ -106,7 +106,49 @@ namespace VideoTheque.Controllers
         [HttpPut("{id}")]
         public async Task<IResult> UpdateBluRay([FromRoute] int id, [FromBody] FilmViewModel filmVm)
         {
-            _bluRayBusiness.UpdateBluRay(id, filmVm.Adapt<BluRayDto>());
+            var directorNames = filmVm.Director.Split(" ");
+                if (directorNames.Length < 2)
+                    return Results.BadRequest("Director's full name is required.");
+                var director = _personneBusiness.GetPersonne(directorNames[0], directorNames[1])
+                    ?.Adapt<PersonneViewModel>();
+                if (director == null)
+                    return Results.NotFound("Director not found.");
+                
+                var writerNames = filmVm.Writer.Split(" ");
+                if (writerNames.Length < 2)
+                    return Results.BadRequest("Writer's full name is required.");
+                var writer = _personneBusiness.GetPersonne(writerNames[0], writerNames[1])?.Adapt<PersonneViewModel>();
+                if (writer == null)
+                    return Results.NotFound("Writer not found.");
+                
+                var actorNames = filmVm.MainActor.Split(" ");
+                if (actorNames.Length < 2)
+                    return Results.BadRequest("Main actor's full name is required.");
+                var mainActor = _personneBusiness.GetPersonne(actorNames[0], actorNames[1])?.Adapt<PersonneViewModel>();
+                if (mainActor == null)
+                    return Results.NotFound("Main actor not found.");
+                
+                var ageRating = _ageRatingBusiness.GetAgeRating(filmVm.AgeRating);
+                if (ageRating == null)
+                    return Results.NotFound("Age rating not found.");
+
+                var genre = _genresBusiness.GetGenre(filmVm.Genre);
+                if (genre == null)
+                    return Results.NotFound("Genre not found.");
+                
+                BluRayDto bluRayDto = new BluRayDto()
+                {
+                    Id = filmVm.Id,
+                    Title = filmVm.Title,
+                    Duration = filmVm.Duration,
+                    IdDirector = director.Id,
+                    IdScenarist = writer.Id,
+                    IdAgeRating = ageRating.Id,
+                    IdGenre = genre.Id,
+                    IdFirstActor = mainActor.Id
+                };
+                
+            _bluRayBusiness.UpdateBluRay(id, bluRayDto);
             return Results.NoContent();
         }
 
