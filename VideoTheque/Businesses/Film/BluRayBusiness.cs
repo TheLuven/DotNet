@@ -50,9 +50,9 @@ namespace VideoTheque.Businesses.Film
                 Id = film.Id,
                 Title = film.Title,
                 Duration = film.Duration,
-                FirstActor = GetPersonFullName(film.IdFirstActor),
+                MainActor = GetPersonFullName(film.IdFirstActor),
                 Director = GetPersonFullName(film.IdDirector),
-                Scenarist = GetPersonFullName(film.IdScenarist),
+                Writer = GetPersonFullName(film.IdScenarist),
                 AgeRating = GetAgeRatingName(film.IdAgeRating),
                 Genre = GetGenreName(film.IdGenre),
                 Support = "Blu-Ray"
@@ -99,9 +99,9 @@ namespace VideoTheque.Businesses.Film
                 Id = film.Id,
                 Title = film.Title,
                 Duration = film.Duration,
-                FirstActor = GetPersonFullName(film.IdFirstActor),
+                MainActor = GetPersonFullName(film.IdFirstActor),
                 Director = GetPersonFullName(film.IdDirector),
-                Scenarist = GetPersonFullName(film.IdScenarist),
+                Writer = GetPersonFullName(film.IdScenarist),
                 AgeRating = GetAgeRatingName(film.IdAgeRating),
                 Genre = GetGenreName(film.IdGenre),
                 Support = "Blu-Ray"
