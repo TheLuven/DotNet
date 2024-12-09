@@ -7,6 +7,8 @@ namespace VideoTheque.Businesses.Emprunt
         Task<List<EmpruntPauvreDto>> GetEmpruntsDispo();
         Task<EmpruntRicheDto> GetEmprunt(int id);
         
-        void UpdateEmprunt(int id, BluRayDto film);
+        void DeleteEmprunt(int id);
+        
+        void AddEmprunt(int id);
     }
 }

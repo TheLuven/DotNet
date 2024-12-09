@@ -3,7 +3,8 @@ using VideoTheque.DTOs;
 using VideoTheque.Repositories.Emprunt;
 using VideoTheque.Repositories.PersonneRepository;
 using VideoTheque.Repositories.Genres;
-using VideoTheque.Repositories.BluRay;
+using VideoTheque.Repositories.Film;
+using VideoTheque.Repositories.AgeRating;
 
 namespace VideoTheque.Businesses.Emprunt
 {
@@ -15,7 +16,7 @@ namespace VideoTheque.Businesses.Emprunt
         private readonly IBluRayRepository _bluRayRepository;
         private readonly IAgeRatingRepository _ageRatingRepository;
         
-        public EmpruntBusiness(IEmpruntRepository empruntRepository, IPersonneRepository personneRepository, IGenresRepository genresRepository, IBluRayRepository bluRayRepository, IAgeratingRepository ageRatingRepository)
+        public EmpruntBusiness(IEmpruntRepository empruntRepository, IPersonneRepository personneRepository, IGenresRepository genresRepository, IBluRayRepository bluRayRepository, IAgeRatingRepository ageRatingRepository)
         {
             _empruntRepository = empruntRepository;
             _personRepository = personneRepository;
@@ -52,42 +53,41 @@ namespace VideoTheque.Businesses.Emprunt
 
         public async Task<EmpruntRicheDto> GetEmprunt(int id)
         {
-            var film = await _empruntRepository.GetEmpruntsDispo();
+            var film = await _bluRayRepository.GetBluRay(id);
             var director = await _personRepository.GetPersonne(film.IdDirector);
             var firstActor = await _personRepository.GetPersonne(film.IdFirstActor);
             var scenarist = await _personRepository.GetPersonne(film.IdScenarist);
             var genre = await _genreRepository.GetGenre(film.IdGenre);
             var ageRating = await _ageRatingRepository.GetAgeRating(film.IdAgeRating);
 
-            var emprunt = new EmpruntRicheDto(
-                film.Id,
-                film.Title,
-                film.Duration,
-                genre,
-                director,
-                firstActor,
-                scenarist,
-                ageRating,
-                false,
-                null
-            );
-
+            var emprunt = new EmpruntRicheDto();
+            emprunt.Id = film.Id;
+            emprunt.Title = film.Title;
+            emprunt.Duration = film.Duration;
+            emprunt.Genre = genre;
+            emprunt.Director = director;
+            emprunt.FirstActor = firstActor;
+            emprunt.Scenarist = scenarist;
+            emprunt.AgeRating = ageRating;
+            emprunt.IsAvailable = false;
+            emprunt.IdOwner = null;
+            
             return emprunt;
 
         }
         
-        public async void addEmprunt(int id)
+        public async void AddEmprunt(int id)
         {
             var film = await _bluRayRepository.GetBluRay(id);
             film.IsAvailable = false;
-            await _bluRayRepository.UpdateEmprunt(film);
+            await _bluRayRepository.UpdateBluRay(id,film);
         }
         
-        public void deleteEmprunt(int id)
+        public async void DeleteEmprunt(int id)
         {
-            var film = _bluRayRepository.GetBluRay(id);
+            var film = await _bluRayRepository.GetBluRay(id);
             film.IsAvailable = true;
-            _bluRayRepository.UpdateEmprunt(film);
+            await _bluRayRepository.UpdateBluRay(id,film);
         }
     }
 }
