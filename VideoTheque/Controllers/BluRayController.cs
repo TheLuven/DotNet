@@ -20,10 +20,14 @@ namespace VideoTheque.Controllers
         private readonly IGenresBusiness _genresBusiness;
         protected readonly ILogger<BluRayController> _logger;
 
-        public BluRayController(ILogger<BluRayController> logger, IBluRayBusiness bluRayBusiness)
+        public BluRayController(ILogger<BluRayController> logger, IBluRayBusiness bluRayBusiness,
+            IPersonneBusiness personneBusiness, IAgeRatingBusiness ageRatingBusiness, IGenresBusiness genresBusiness)
         {
             _logger = logger;
             _bluRayBusiness = bluRayBusiness;
+            _personneBusiness = personneBusiness;
+            _ageRatingBusiness = ageRatingBusiness;
+            _genresBusiness = genresBusiness;
         }
 
         [HttpGet]
