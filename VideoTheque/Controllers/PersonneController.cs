@@ -25,6 +25,9 @@ namespace VideoTheque.Controllers
         [HttpGet("{id}")]
         public async Task<PersonneViewModel> GetPersonne([FromRoute] int id) => _personneBusiness.GetPersonne(id).Adapt<PersonneViewModel>();
         
+        [HttpGet("{firstName}/{lastName}")]
+        public async Task<PersonneViewModel> GetPersonne([FromRoute] string firstName, [FromRoute] string lastName) => _personneBusiness.GetPersonne(firstName, lastName).Adapt<PersonneViewModel>();
+        
         [HttpPost]
         public async Task<IResult> InsertPersonne([FromBody] PersonneViewModel personneVM)
         {
