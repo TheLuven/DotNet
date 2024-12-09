@@ -40,17 +40,17 @@ namespace VideoTheque.Controllers
             long duration = filmVm.Duration;
             string director_firstName = filmVm.Director.Split(" ")[0];
             string director_lastName = filmVm.Director.Split(" ")[1];
-            PersonneDto director = _personneBusiness.GetPersonne(director_firstName,director_lastName);
+            PersonneViewModel director = _personneBusiness.GetPersonne(director_firstName,director_lastName).Adapt<PersonneViewModel>();
             int idDirector = director.Id;
             string writer_firstName = filmVm.Writer.Split(" ")[0];
             string writer_lastName = filmVm.Writer.Split(" ")[1];
-            PersonneDto writer = _personneBusiness.GetPersonne(writer_firstName,writer_lastName);
+            PersonneViewModel writer = _personneBusiness.GetPersonne(writer_firstName,writer_lastName).Adapt<PersonneViewModel>();
             int idScenarist = writer.Id;
             int idAgeRating = _ageRatingBusiness.GetAgeRating(filmVm.AgeRating).Id;
             int idGenre = _genresBusiness.GetGenre(filmVm.Genre).Id;
             string mainActor_firstName = filmVm.MainActor.Split(" ")[0];
             string mainActor_lastName = filmVm.MainActor.Split(" ")[1];
-            PersonneDto mainActor = _personneBusiness.GetPersonne(mainActor_firstName,mainActor_lastName);
+            PersonneViewModel mainActor = _personneBusiness.GetPersonne(mainActor_firstName,mainActor_lastName).Adapt<PersonneViewModel>();
             int idFirstActor = mainActor.Id;
             
             BluRayDto bluRayDto = new BluRayDto()
