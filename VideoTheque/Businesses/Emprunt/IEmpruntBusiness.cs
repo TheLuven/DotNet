@@ -7,7 +7,7 @@ namespace VideoTheque.Businesses.Emprunt
         Task<List<EmpruntPauvreDto>> GetEmpruntsDispo();
         Task<EmpruntRicheDto> GetEmprunt(int id);
         
-        void DeleteEmprunt(int id);
+        void DeleteEmprunt(string title);
 
         Task<EmpruntPauvreDto> AddEmprunt(int id);
     }

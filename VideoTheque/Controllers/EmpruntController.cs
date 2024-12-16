@@ -30,17 +30,29 @@ namespace VideoTheque.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<IResult> AddEmprunt([FromBody] int id)
+        public async Task<IResult> AddEmprunt([FromRoute] int id)
         {
             var created = await _empruntBusiness.AddEmprunt(id);
+			if (created == null)
+	            return Results.BadRequest("Film already borrowed.");
+
             return Results.Created($"/emprunt/{created.Id}", created);
         }
         
-        [HttpDelete("{id}")]
-        public async Task<IResult> DeleteEmprunt([FromRoute] int id)
+        [HttpDelete("{title}")]
+        public async Task<IResult> DeleteEmprunt([FromRoute] string title)
         {
-            _empruntBusiness.DeleteEmprunt(id);
-            return Results.NoContent();
+            try
+            {
+               _empruntBusiness.DeleteEmprunt(id); 
+               return Results.NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting emprunt with title {Title}", title);
+                return Results.BadRequest("Film is not borrowed.");
+            }
+            
         }
     }
 }

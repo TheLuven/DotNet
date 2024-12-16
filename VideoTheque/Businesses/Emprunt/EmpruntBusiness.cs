@@ -59,18 +59,44 @@ namespace VideoTheque.Businesses.Emprunt
             var scenarist = await _personRepository.GetPersonne(film.IdScenarist);
             var genre = await _genreRepository.GetGenre(film.IdGenre);
             var ageRating = await _ageRatingRepository.GetAgeRating(film.IdAgeRating);
+            
+            var directorWithoutId = new PersonneDto 
+            { 
+                FirstName = director.FirstName, 
+                LastName = director.LastName, 
+                Nationality = director.Nationality, 
+                BirthDay = director.BirthDay 
+            };            
+            
+            var firstActorWithoutId = new PersonneDto
+            {
+                FirstName = firstActor.FirstName,
+                LastName = firstActor.LastName,
+                Nationality = firstActor.Nationality,
+                BirthDay = firstActor.BirthDay
+            };
+
+            var scenaristWithoutId = new PersonneDto
+            {
+                FirstName = scenarist.FirstName,
+                LastName = scenarist.LastName,
+                Nationality = scenarist.Nationality,
+                BirthDay = scenarist.BirthDay
+            };
+            
+            
+           
+            var genreWithoutId = new GenreDto {Name = genre.Name };
+            var ageRatingWithoutId = new AgeRatingDto { Abreviation = ageRating.Abreviation, Name = ageRating.Name  };
 
             var emprunt = new EmpruntRicheDto();
-            emprunt.Id = film.Id;
             emprunt.Title = film.Title;
             emprunt.Duration = film.Duration;
-            emprunt.Genre = genre;
-            emprunt.Director = director;
-            emprunt.FirstActor = firstActor;
-            emprunt.Scenarist = scenarist;
-            emprunt.AgeRating = ageRating;
-            emprunt.IsAvailable = false;
-            emprunt.IdOwner = null;
+            emprunt.Genre = genreWithoutId;
+            emprunt.Director = directorWithoutId;
+            emprunt.FirstActor = firstActorWithoutId;
+            emprunt.Scenarist = scenaristWithoutId;
+            emprunt.AgeRating = ageRatingWithoutId;
             
             return emprunt;
 
@@ -79,6 +105,9 @@ namespace VideoTheque.Businesses.Emprunt
         public async Task<EmpruntPauvreDto> AddEmprunt(int id)
         {
             var film = await _bluRayRepository.GetBluRay(id);
+			if (film.IsAvailable == false){
+				return null;
+			}
             film.IsAvailable = false;
             await _bluRayRepository.UpdateBluRay(id,film);
 
@@ -90,11 +119,14 @@ namespace VideoTheque.Businesses.Emprunt
 
         }
         
-        public async void DeleteEmprunt(int id)
+        public async void DeleteEmprunt(string title)
         {
-            var film = await _bluRayRepository.GetBluRay(id);
+            var film = await _bluRayRepository.GetBluRay(title);
+			if (film.IsAvailable == true){
+			    throw new InvalidOperationException("Film is not borrowed.");
+			}
             film.IsAvailable = true;
-            await _bluRayRepository.UpdateBluRay(id,film);
+            await _bluRayRepository.UpdateBluRay(film.Id,film);
         }
     }
 }

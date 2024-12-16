@@ -4,6 +4,7 @@ using VideoTheque.Businesses.AgeRating;
 using VideoTheque.Businesses.Film;
 using VideoTheque.Businesses.Genres;
 using VideoTheque.Businesses.Personne;
+using VideoTheque.Businesses.Host;
 using VideoTheque.DTOs;
 using VideoTheque.Repositories.AgeRating;
 using VideoTheque.ViewModels;
@@ -19,15 +20,17 @@ namespace VideoTheque.Controllers
         private readonly IAgeRatingBusiness _ageRatingBusiness;
         private readonly IGenresBusiness _genresBusiness;
         protected readonly ILogger<BluRayController> _logger;
+        protected readonly IHostBusiness _hostBusiness;
 
         public BluRayController(ILogger<BluRayController> logger, IBluRayBusiness bluRayBusiness,
-            IPersonneBusiness personneBusiness, IAgeRatingBusiness ageRatingBusiness, IGenresBusiness genresBusiness)
+            IPersonneBusiness personneBusiness, IAgeRatingBusiness ageRatingBusiness, IGenresBusiness genresBusiness, IHostBusiness hostBusiness)
         {
             _logger = logger;
             _bluRayBusiness = bluRayBusiness;
             _personneBusiness = personneBusiness;
             _ageRatingBusiness = ageRatingBusiness;
             _genresBusiness = genresBusiness;
+            _hostBusiness = hostBusiness;
         }
 
         [HttpGet]
@@ -157,6 +160,22 @@ namespace VideoTheque.Controllers
         {
             _bluRayBusiness.DeleteBluRay(id);
             return Results.Ok();
+        }
+
+
+        [HttpPost("{idHost}/available")]
+        public async Task<List<EmpruntPauvreDto?>> GetEmpruntAvailable([FromRoute] int idHost)
+        {
+            
+			var films_available = await _bluRayBusiness.GetEmpruntAvailable(idHost);
+			return films_available.Adapt<List<EmpruntPauvreDto>>();
+        }
+
+		[HttpPost("{idHost}/{idFilm}")]
+        public async Task<IResult> AddEmprunt([FromRoute] int idHost, [FromRoute] int idFilm)
+        {
+            var created = await _bluRayBusiness.AddFilmByEmprunt(idHost, idFilm);
+			return Results.Created($"/films/{created.Id}", created);
         }
     }
 }
