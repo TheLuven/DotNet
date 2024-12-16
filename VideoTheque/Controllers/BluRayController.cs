@@ -23,7 +23,8 @@ namespace VideoTheque.Controllers
         protected readonly ILogger<BluRayController> _logger;
 
         public BluRayController(ILogger<BluRayController> logger, IBluRayBusiness bluRayBusiness,
-            IPersonneRepository personneRepository, IAgeRatingRepository ageRatingRepository, IGenresRepository genresRepository)
+            IPersonneRepository personneRepository, IAgeRatingRepository ageRatingRepository,
+            IGenresRepository genresRepository)
         {
             _logger = logger;
             _bluRayBusiness = bluRayBusiness;
@@ -33,55 +34,96 @@ namespace VideoTheque.Controllers
         }
 
         [HttpGet]
-        public async Task<List<FilmViewModel>> GetBluRays() =>
-            (await _bluRayBusiness.GetBluRays()).Adapt<List<FilmViewModel>>();
+        public async Task<List<FilmViewModel>> GetBluRays()
+        {
+            _logger.LogInformation("Getting all BluRays");
+            return (await _bluRayBusiness.GetBluRays()).Adapt<List<FilmViewModel>>();
+        }
 
         [HttpGet("{id}")]
-        public async Task<FilmViewModel> GetBluRay([FromRoute] int id) =>
-            _bluRayBusiness.GetBluRay(id).Adapt<FilmViewModel>();
+        public async Task<FilmViewModel> GetBluRay([FromRoute] int id)
+        {
+            _logger.LogInformation("Getting BluRay with id {id}", id);
+            return _bluRayBusiness.GetBluRay(id).Adapt<FilmViewModel>();
+        }
 
         [HttpPost]
         public async Task<IResult> InsertBluRay([FromBody] FilmViewModel filmVm)
         {
             if (filmVm == null)
+            {
+                _logger.LogWarning("Film data is required.");
                 return Results.BadRequest("Film data is required.");
+            }
 
             if (string.IsNullOrEmpty(filmVm.Director) || string.IsNullOrEmpty(filmVm.Writer) ||
                 string.IsNullOrEmpty(filmVm.MainActor))
+            {
+                _logger.LogWarning("Director, Writer, and Main Actor are required.");
                 return Results.BadRequest("Director, Writer, and Main Actor are required.");
+            }
 
             try
             {
                 var directorNames = filmVm.Director.Split(" ");
                 if (directorNames.Length < 2)
+                {
+                    _logger.LogWarning("Director's full name is required.");
                     return Results.BadRequest("Director's full name is required.");
+                }
+
                 var director = _personneRepository.GetPersonne(directorNames[0], directorNames[1]).Result
                     ?.Adapt<PersonneViewModel>();
                 if (director == null)
+                {
+                    _logger.LogWarning("Director not found.");
                     return Results.NotFound("Director not found.");
-                
+                }
+
                 var writerNames = filmVm.Writer.Split(" ");
                 if (writerNames.Length < 2)
+                {
+                    _logger.LogWarning("Writer's full name is required.");
                     return Results.BadRequest("Writer's full name is required.");
-                var writer = _personneRepository.GetPersonne(writerNames[0], writerNames[1]).Result?.Adapt<PersonneViewModel>();
+                }
+
+                var writer = _personneRepository.GetPersonne(writerNames[0], writerNames[1]).Result
+                    ?.Adapt<PersonneViewModel>();
                 if (writer == null)
+                {
+                    _logger.LogWarning("Writer not found.");
                     return Results.NotFound("Writer not found.");
-                
+                }
+
                 var actorNames = filmVm.MainActor.Split(" ");
                 if (actorNames.Length < 2)
+                {
+                    _logger.LogWarning("Main actor's full name is required.");
                     return Results.BadRequest("Main actor's full name is required.");
-                var mainActor = _personneRepository.GetPersonne(actorNames[0], actorNames[1]).Result?.Adapt<PersonneViewModel>();
+                }
+
+                var mainActor = _personneRepository.GetPersonne(actorNames[0], actorNames[1]).Result
+                    ?.Adapt<PersonneViewModel>();
                 if (mainActor == null)
+                {
+                    _logger.LogWarning("Main actor not found.");
                     return Results.NotFound("Main actor not found.");
-                
+                }
+
                 var ageRating = _ageRatingRepository.GetAgeRating(filmVm.AgeRating).Result;
                 if (ageRating == null)
+                {
+                    _logger.LogWarning("Age rating not found.");
                     return Results.NotFound("Age rating not found.");
+                }
 
                 var genre = _genresRepository.GetGenre(filmVm.Genre).Result;
                 if (genre == null)
+                {
+                    _logger.LogWarning("Genre not found.");
                     return Results.NotFound("Genre not found.");
-                
+                }
+
                 BluRayDto bluRayDto = new BluRayDto()
                 {
                     Id = filmVm.Id,
@@ -93,13 +135,14 @@ namespace VideoTheque.Controllers
                     IdGenre = genre.Id,
                     IdFirstActor = mainActor.Id
                 };
-                
+
                 var created = _bluRayBusiness.InsertBluRay(bluRayDto);
+                _logger.LogInformation("BluRay created with id {id}", created.Id);
                 return Results.Created($"/films/{created.Id}", created);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex, "An error occurred while processing the request.");
                 return Results.Problem("An error occurred while processing the request.");
             }
         }
@@ -109,47 +152,77 @@ namespace VideoTheque.Controllers
         public async Task<IResult> UpdateBluRay([FromRoute] int id, [FromBody] FilmViewModel filmVm)
         {
             var directorNames = filmVm.Director.Split(" ");
-                if (directorNames.Length < 2)
-                    return Results.BadRequest("Director's full name is required.");
-                var director = _personneRepository.GetPersonne(directorNames[0], directorNames[1]).Result
-                    ?.Adapt<PersonneViewModel>();
-                if (director == null)
-                    return Results.NotFound("Director not found.");
-                
-                var writerNames = filmVm.Writer.Split(" ");
-                if (writerNames.Length < 2)
-                    return Results.BadRequest("Writer's full name is required.");
-                var writer = _personneRepository.GetPersonne(writerNames[0], writerNames[1]).Result?.Adapt<PersonneViewModel>();
-                if (writer == null)
-                    return Results.NotFound("Writer not found.");
-                
-                var actorNames = filmVm.MainActor.Split(" ");
-                if (actorNames.Length < 2)
-                    return Results.BadRequest("Main actor's full name is required.");
-                var mainActor = _personneRepository.GetPersonne(actorNames[0], actorNames[1]).Result?.Adapt<PersonneViewModel>();
-                if (mainActor == null)
-                    return Results.NotFound("Main actor not found.");
-                
-                var ageRating = _ageRatingRepository.GetAgeRating(filmVm.AgeRating).Result;
-                if (ageRating == null)
-                    return Results.NotFound("Age rating not found.");
+            if (directorNames.Length < 2)
+            {
+                _logger.LogWarning("Director's full name is required.");
+                return Results.BadRequest("Director's full name is required.");
+            }
 
-                var genre = _genresRepository.GetGenre(filmVm.Genre).Result;
-                if (genre == null)
-                    return Results.NotFound("Genre not found.");
-                
-                BluRayDto bluRayDto = new BluRayDto()
-                {
-                    Id = filmVm.Id,
-                    Title = filmVm.Title,
-                    Duration = filmVm.Duration,
-                    IdDirector = director.Id,
-                    IdScenarist = writer.Id,
-                    IdAgeRating = ageRating.Id,
-                    IdGenre = genre.Id,
-                    IdFirstActor = mainActor.Id
-                };
-                
+            var director = _personneRepository.GetPersonne(directorNames[0], directorNames[1]).Result
+                ?.Adapt<PersonneViewModel>();
+            if (director == null)
+            {
+                _logger.LogWarning("Director not found.");
+                return Results.NotFound("Director not found.");
+            }
+
+            var writerNames = filmVm.Writer.Split(" ");
+            if (writerNames.Length < 2)
+            {
+                _logger.LogWarning("Writer's full name is required.");
+                return Results.BadRequest("Writer's full name is required.");
+            }
+
+            var writer = _personneRepository.GetPersonne(writerNames[0], writerNames[1]).Result
+                ?.Adapt<PersonneViewModel>();
+            if (writer == null)
+            {
+                _logger.LogWarning("Writer not found.");
+                return Results.NotFound("Writer not found.");
+            }
+
+            var actorNames = filmVm.MainActor.Split(" ");
+            if (actorNames.Length < 2)
+            {
+                _logger.LogWarning("Main actor's full name is required.");
+                return Results.BadRequest("Main actor's full name is required.");
+            }
+
+            var mainActor = _personneRepository.GetPersonne(actorNames[0], actorNames[1]).Result
+                ?.Adapt<PersonneViewModel>();
+            if (mainActor == null)
+            {
+                _logger.LogWarning("Main actor not found.");
+                return Results.NotFound("Main actor not found.");
+            }
+
+            var ageRating = _ageRatingRepository.GetAgeRating(filmVm.AgeRating).Result;
+            if (ageRating == null)
+            {
+                _logger.LogWarning("Age rating not found.");
+                return Results.NotFound("Age rating not found.");
+            }
+
+            var genre = _genresRepository.GetGenre(filmVm.Genre).Result;
+            if (genre == null)
+            {
+                _logger.LogWarning("Genre not found.");
+                return Results.NotFound("Genre not found.");
+            }
+
+            BluRayDto bluRayDto = new BluRayDto()
+            {
+                Id = filmVm.Id,
+                Title = filmVm.Title,
+                Duration = filmVm.Duration,
+                IdDirector = director.Id,
+                IdScenarist = writer.Id,
+                IdAgeRating = ageRating.Id,
+                IdGenre = genre.Id,
+                IdFirstActor = mainActor.Id
+            };
+
+            _logger.LogInformation("Updating BluRay with id {id}", id);
             _bluRayBusiness.UpdateBluRay(id, bluRayDto);
             return Results.NoContent();
         }
@@ -157,6 +230,7 @@ namespace VideoTheque.Controllers
         [HttpDelete("{id}")]
         public async Task<IResult> DeleteBluRay([FromRoute] int id)
         {
+            _logger.LogInformation("Deleting BluRay with id {id}", id);
             _bluRayBusiness.DeleteBluRay(id);
             return Results.Ok();
         }
