@@ -55,7 +55,7 @@ namespace VideoTheque.Businesses.Film
                 Writer = GetPersonFullName(film.IdScenarist),
                 AgeRating = GetAgeRatingName(film.IdAgeRating),
                 Genre = GetGenreName(film.IdGenre),
-                Support = "Blu-Ray"
+                Support = "BLURAY"
             }).ToList();
         }
 
@@ -104,7 +104,7 @@ namespace VideoTheque.Businesses.Film
                 Writer = GetPersonFullName(film.IdScenarist),
                 AgeRating = GetAgeRatingName(film.IdAgeRating),
                 Genre = GetGenreName(film.IdGenre),
-                Support = "Blu-Ray"
+                Support = "BLURAY"
             };
         }
     }
