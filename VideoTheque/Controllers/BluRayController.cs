@@ -55,7 +55,7 @@ namespace VideoTheque.Controllers
                 var directorNames = filmVm.Director.Split(" ");
                 if (directorNames.Length < 2)
                     return Results.BadRequest("Director's full name is required.");
-                var director = _personneRepository.GetPersonne(directorNames[0], directorNames[1])
+                var director = _personneRepository.GetPersonne(directorNames[0], directorNames[1]).Result
                     ?.Adapt<PersonneViewModel>();
                 if (director == null)
                     return Results.NotFound("Director not found.");
@@ -63,14 +63,14 @@ namespace VideoTheque.Controllers
                 var writerNames = filmVm.Writer.Split(" ");
                 if (writerNames.Length < 2)
                     return Results.BadRequest("Writer's full name is required.");
-                var writer = _personneRepository.GetPersonne(writerNames[0], writerNames[1])?.Adapt<PersonneViewModel>();
+                var writer = _personneRepository.GetPersonne(writerNames[0], writerNames[1]).Result?.Adapt<PersonneViewModel>();
                 if (writer == null)
                     return Results.NotFound("Writer not found.");
                 
                 var actorNames = filmVm.MainActor.Split(" ");
                 if (actorNames.Length < 2)
                     return Results.BadRequest("Main actor's full name is required.");
-                var mainActor = _personneRepository.GetPersonne(actorNames[0], actorNames[1])?.Adapt<PersonneViewModel>();
+                var mainActor = _personneRepository.GetPersonne(actorNames[0], actorNames[1]).Result?.Adapt<PersonneViewModel>();
                 if (mainActor == null)
                     return Results.NotFound("Main actor not found.");
                 
