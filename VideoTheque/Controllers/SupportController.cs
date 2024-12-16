@@ -19,11 +19,19 @@ namespace VideoTheque.Controllers
 	        _logger = logger;
 			_supportBusiness = supportBusiness;       
 		}
-		
-		[HttpGet]
-		public async Task<List<SupportViewModel>> GetSupports() => (await _supportBusiness.GetSupports()).Adapt<List<SupportViewModel>>();
-		
-		[HttpGet("{id}")]
-		public async Task<SupportViewModel> GetSupport([FromRoute] int id) => _supportBusiness.GetSupport(id).Adapt<SupportViewModel>();
+
+        [HttpGet]
+        public async Task<List<SupportViewModel>> GetSupports()
+        {
+            _logger.LogInformation("Getting all supports");
+            return (await _supportBusiness.GetSupports()).Adapt<List<SupportViewModel>>();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<SupportViewModel> GetSupport([FromRoute] int id)
+        {
+            _logger.LogInformation($"Getting support {id}");
+            return _supportBusiness.GetSupport(id).Adapt<SupportViewModel>();
+        }
     }
 }
