@@ -31,7 +31,7 @@ namespace VideoTheque.Businesses.Emprunt
             var filmsDispo = new List<EmpruntPauvreDto>();
 
             foreach (var film in films)
-            {
+            { 
                 var director = await _personRepository.GetPersonne(film.IdDirector);
                 var firstActor = await _personRepository.GetPersonne(film.IdFirstActor);
                 var genre = await _genreRepository.GetGenre(film.IdGenre);
@@ -76,11 +76,18 @@ namespace VideoTheque.Businesses.Emprunt
 
         }
         
-        public async void AddEmprunt(int id)
+        public async Task<EmpruntPauvreDto> AddEmprunt(int id)
         {
             var film = await _bluRayRepository.GetBluRay(id);
             film.IsAvailable = false;
             await _bluRayRepository.UpdateBluRay(id,film);
+
+            var filmDto = new EmpruntPauvreDto();
+            filmDto.Id = film.Id;
+            filmDto.Title = film.Title;
+
+            return filmDto;
+
         }
         
         public async void DeleteEmprunt(int id)

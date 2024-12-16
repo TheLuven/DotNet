@@ -61,6 +61,7 @@ namespace VideoTheque.Businesses.Film
 
         public BluRayDto InsertBluRay(BluRayDto film)
         {
+            film.IsAvailable = true;
             if (_filmDao.InsertBluRay(film).IsFaulted)
             {
                 throw new InternalErrorException($"Erreur lors de l'insertion du film {film.Title}");

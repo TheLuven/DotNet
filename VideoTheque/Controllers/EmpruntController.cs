@@ -20,22 +20,26 @@ namespace VideoTheque.Controllers
         }
         
         [HttpGet("dispo")]
-        public async Task<List<EmpruntViewModel>> GetEmprunts() => (await _empruntBusiness.GetEmpruntsDispo()).Adapt<List<EmpruntViewModel>>(); 
-        
+        public async Task<List<EmpruntViewModel>> GetEmprunts() => (await _empruntBusiness.GetEmpruntsDispo()).Adapt<List<EmpruntViewModel>>();
+
         [HttpGet("{id}")]
-        public async Task<EmpruntRicheDto> GetEmprunt([FromRoute] int id) => _empruntBusiness.GetEmprunt(id).Adapt<EmpruntViewModel>();
-        
-        [HttpPost]
+        public async Task<EmpruntRicheDto> GetEmprunt([FromRoute] int id)
+        {
+            var emprunt = await _empruntBusiness.GetEmprunt(id);
+            return emprunt.Adapt<EmpruntRicheDto>();
+        }
+
+        [HttpPost("{id}")]
         public async Task<IResult> AddEmprunt([FromBody] int id)
         {
-            var created = _empruntBusiness.addEmprunt(id);
+            var created = await _empruntBusiness.AddEmprunt(id);
             return Results.Created($"/emprunt/{created.Id}", created);
         }
         
         [HttpDelete("{id}")]
         public async Task<IResult> DeleteEmprunt([FromRoute] int id)
         {
-            _empruntBusiness.deleteEmprunt(id);
+            _empruntBusiness.DeleteEmprunt(id);
             return Results.NoContent();
         }
     }

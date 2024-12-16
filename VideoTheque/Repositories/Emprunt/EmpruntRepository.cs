@@ -15,7 +15,11 @@ namespace VideoTheque.Repositories.Emprunt
         }
         
         public Task<List<BluRayDto>> GetEmpruntsDispo() => _db.BluRays.Where(b => b.IdOwner == null && b.IsAvailable).ToListAsync();
-        
-        public Task<BluRayDto> GetEmprunt(int id) => _db.BluRays.FindAsync(id);
+
+        public async Task<BluRayDto> GetEmprunt(int id)
+        {
+            var bluRay = await _db.BluRays.FindAsync(id);
+            return bluRay;
+        }
     }
 }
