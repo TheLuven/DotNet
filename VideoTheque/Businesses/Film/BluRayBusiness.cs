@@ -82,7 +82,7 @@ namespace VideoTheque.Businesses.Film
                 var host = _hostRepository.GetHost(film.IdOwner.Value);
                
                 var client = new HttpClient();
-                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}/emprunt/{film.Title}");
+                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{film.Title}");
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new InternalErrorException($"Erreur lors de la suppression du film {film.Title}");
@@ -130,9 +130,7 @@ namespace VideoTheque.Businesses.Film
         {
             var client = new HttpClient();
             var ipHost = await _hostRepository.GetHost(idHost);
-            HttpResponseMessage response = await client.GetAsync($"http://{ipHost.Url}/emprunt/dispo");
-			Console.WriteLine(response.StatusCode);
-			Console.WriteLine($"http://{ipHost.Url}/emprunt/dispo");
+            HttpResponseMessage response = await client.GetAsync($"http://{ipHost.Url}:5000/emprunt/dispo");
             if (response.IsSuccessStatusCode)
             {
 				var responseBody = await response.Content.ReadAsStringAsync();
@@ -150,10 +148,10 @@ namespace VideoTheque.Businesses.Film
         {
             var client = new HttpClient();
             var ipHost = await _hostRepository.GetHost(idHost);
-            HttpResponseMessage response = await client.PostAsync($"http://{ipHost.Url}/emprunt/{idFilm}", null);
+            HttpResponseMessage response = await client.PostAsync($"http://{ipHost.Url}:5000/emprunt/{idFilm}", null);
             if (response.IsSuccessStatusCode)
             {
-                HttpResponseMessage responseRiche = await client.GetAsync($"http://{ipHost.Url}/emprunt/{idFilm}");
+                HttpResponseMessage responseRiche = await client.GetAsync($"http://{ipHost.Url}:5000/emprunt/{idFilm}");
 
                 if (responseRiche.IsSuccessStatusCode)
                 {

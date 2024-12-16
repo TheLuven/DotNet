@@ -44,7 +44,7 @@ namespace VideoTheque.Controllers
         {
             try
             {
-               _empruntBusiness.DeleteEmprunt(id); 
+               _empruntBusiness.DeleteEmprunt(title); 
                return Results.NoContent();
             }
             catch (Exception ex)
