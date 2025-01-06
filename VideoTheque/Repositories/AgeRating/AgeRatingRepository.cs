@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using VideoTheque.Context;
+using VideoTheque.Core;
 using VideoTheque.DTOs;
 
 namespace VideoTheque.Repositories.AgeRating
@@ -17,8 +18,11 @@ namespace VideoTheque.Repositories.AgeRating
         public Task<List<AgeRatingDto>> GetAgeRatings() => _db.AgeRatings.ToListAsync();
 
         public ValueTask<AgeRatingDto?> GetAgeRating(int id) => _db.AgeRatings.FindAsync(id);
-        
-        public Task<AgeRatingDto?> GetAgeRating(string filmVmAgeRating) => _db.AgeRatings.FirstOrDefaultAsync(a => a.Name == filmVmAgeRating);
+
+        public async Task<AgeRatingDto?> GetAgeRating(string filmVmAgeRating)
+        {
+            return await _db.AgeRatings.FirstOrDefaultAsync(a => a.Name == filmVmAgeRating)  ?? throw new NotFoundException();
+        } 
 
         public async Task InsertAgeRating(AgeRatingDto ageRating)
         {

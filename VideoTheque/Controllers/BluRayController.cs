@@ -163,12 +163,12 @@ namespace VideoTheque.Controllers
         }
 
 
-        [HttpPost("{idHost}/available")]
-        public async Task<List<EmpruntPauvreDto?>> GetEmpruntAvailable([FromRoute] int idHost)
+        [HttpGet("{idHost}/available")]
+        public async Task<List<EmpruntViewModel?>> GetEmpruntAvailable([FromRoute] int idHost)
         {
             
 			var films_available = await _bluRayBusiness.GetEmpruntAvailable(idHost);
-			return films_available.Adapt<List<EmpruntPauvreDto>>();
+            return films_available.Adapt<List<EmpruntViewModel>>();
         }
 
 		[HttpPost("{idHost}/{idFilm}")]

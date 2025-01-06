@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace VideoTheque.DTOs
 {
     public class EmpruntPauvreDto
     {
         public int Id { get; set; }
+        
         public string Title { get; set; }
         
         public string Genre { get; set; }

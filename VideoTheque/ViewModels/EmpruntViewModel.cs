@@ -6,7 +6,7 @@ namespace VideoTheque.ViewModels
 {
     public class EmpruntViewModel
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName("filmId")]
         [Required]
         public int Id { get; set; }
         
@@ -18,11 +18,11 @@ namespace VideoTheque.ViewModels
         [Required]
         public string Genre { get; set; }
         
-        [JsonPropertyName("director")]
+        [JsonPropertyName("realisateur")]
         [Required]
         public string Director { get; set; }
         
-        [JsonPropertyName("firstActor")]
+        [JsonPropertyName("acteur-principal")]
         [Required]
         public string FirstActor { get; set; }
         

@@ -8,6 +8,8 @@ using VideoTheque.Repositories.Genres;
 using VideoTheque.Repositories.PersonneRepository;
 using VideoTheque.Repositories.Host;
 using System.Net.Http;
+using Mapster;
+using VideoTheque.ViewModels;
 
 namespace VideoTheque.Businesses.Film
 {
@@ -18,6 +20,7 @@ namespace VideoTheque.Businesses.Film
         private readonly IGenresRepository _genresRepository;
         private readonly IAgeRatingRepository _ageRatingRepository;
         private readonly IHostRepository _hostRepository;
+        private readonly ILogger<BluRayBusiness> _logger;
 
         public BluRayBusiness(IBluRayRepository filmDao, IPersonneRepository personneDao, IGenresRepository genresRepository, IAgeRatingRepository ageRatingRepository, IHostRepository hostRepository)
         {
@@ -80,9 +83,12 @@ namespace VideoTheque.Businesses.Film
             if (film != null && film.IdOwner != null)
             {
                 var host = _hostRepository.GetHost(film.IdOwner.Value);
+                
+                var title = film.Title.Replace("%20"," ");
                
                 var client = new HttpClient();
-                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{film.Title}");
+                
+                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{title}");
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new InternalErrorException($"Erreur lors de la suppression du film {film.Title}");
@@ -134,9 +140,10 @@ namespace VideoTheque.Businesses.Film
             if (response.IsSuccessStatusCode)
             {
 				var responseBody = await response.Content.ReadAsStringAsync();
-        		Console.WriteLine(responseBody);
-                var films = await response.Content.ReadFromJsonAsync<List<EmpruntPauvreDto>>();
-                return films;
+        		Console.WriteLine("response : "  ,responseBody);
+                var films = await response.Content.ReadFromJsonAsync<List<EmpruntViewModel>>();
+                var filmsDto = films.Adapt<List<EmpruntPauvreDto>>();
+                return filmsDto;
             }
             else
             {
@@ -168,64 +175,69 @@ namespace VideoTheque.Businesses.Film
                     var writerId = -1;
 
 
-                    var genre = _genresRepository.GetGenre(film.Genre.Name).Result;
-                    if (genre == null)
+                    try
                     {
-                        _genresRepository.InsertGenre(new GenreDto { Name = film.Genre.Name });
-                        genreId = _genresRepository.GetGenre(film.Genre.Name).Result.Id;
-                    }
-                    else
-                    {
+                        var genre = _genresRepository.GetGenre(film.Genre.Name).Result;
                         genreId = genre.Id;
                     }
-                    
-                    var ageRating = _ageRatingRepository.GetAgeRating(film.AgeRating.Abreviation).Result;
-                    if (ageRating == null)
+                    catch (NotFoundException e)
                     {
-                        _ageRatingRepository.InsertAgeRating(new AgeRatingDto { Abreviation = film.AgeRating.Abreviation, Name = film.AgeRating.Name });
-                        ageRatingId = _ageRatingRepository.GetAgeRating(film.AgeRating.Abreviation).Result.Id;
+                        await _genresRepository.InsertGenre(new GenreDto { Name = film.Genre.Name });
+                        genreId = _genresRepository.GetGenre(film.Genre.Name).Result.Id;
                     }
-                    else
+
+                    try
                     {
+                        var ageRating = _ageRatingRepository.GetAgeRating(film.AgeRating.Abreviation).Result;
                         ageRatingId = ageRating.Id;
                     }
-                    
-                    var director = _personneDao.GetPersonne(film.Director.FirstName, film.Director.LastName).Result;
-                    if (director == null)
+                    catch (NotFoundException e)
                     {
-                        _personneDao.InsertPersonne(new PersonneDto { FirstName = film.Director.FirstName, LastName = film.Director.LastName, Nationality = film.Director.Nationality, BirthDay = film.Director.BirthDay });
-                        directorId = _personneDao.GetPersonne(film.Director.FirstName, film.Director.LastName).Result.Id;
+                         await _ageRatingRepository.InsertAgeRating(new AgeRatingDto { Abreviation = film.AgeRating.Abreviation, Name = film.AgeRating.Name });
+                                                ageRatingId = _ageRatingRepository.GetAgeRating(film.AgeRating.Abreviation).Result.Id;
                     }
-                    else
+
+                    try
                     {
+                        var director = _personneDao.GetPersonne(film.Director.FirstName, film.Director.LastName).Result;
                         directorId = director.Id;
                     }
-                    
-                    var firstActor = _personneDao.GetPersonne(film.FirstActor.FirstName, film.FirstActor.LastName).Result;
-                    if (firstActor == null)
+                    catch (NotFoundException e)
                     {
-                        _personneDao.InsertPersonne(new PersonneDto { FirstName = film.FirstActor.FirstName, LastName = film.FirstActor.LastName, Nationality = film.FirstActor.Nationality, BirthDay = film.FirstActor.BirthDay });
-                        firstActorId = _personneDao.GetPersonne(film.FirstActor.FirstName, film.FirstActor.LastName).Result.Id;
+                        await _personneDao.InsertPersonne(new PersonneDto
+                        {
+                            FirstName = film.Director.FirstName, LastName = film.Director.LastName,
+                            Nationality = film.Director.Nationality, BirthDay = film.Director.BirthDay
+                        });
+                        directorId = _personneDao.GetPersonne(film.Director.FirstName, film.Director.LastName).Result
+                            .Id;
                     }
-                    else
+
+                    try
                     {
+                        var firstActor = _personneDao.GetPersonne(film.FirstActor.FirstName, film.FirstActor.LastName)
+                            .Result;
                         firstActorId = firstActor.Id;
                     }
-                    
-                    var writer = _personneDao.GetPersonne(film.Scenarist.FirstName, film.Scenarist.LastName).Result;
-                    if (writer == null)
+                    catch (NotFoundException e)
                     {
-                        _personneDao.InsertPersonne(new PersonneDto
-                        {
-                            FirstName = film.Scenarist.FirstName, LastName = film.Scenarist.LastName,
-                            Nationality = film.Scenarist.Nationality, BirthDay = film.Scenarist.BirthDay
-                        });
-                        writerId = _personneDao.GetPersonne(film.Scenarist.FirstName, film.Scenarist.LastName)
-                            .Result.Id;
+                        await _personneDao.InsertPersonne(new PersonneDto { FirstName = film.FirstActor.FirstName, LastName = film.FirstActor.LastName, Nationality = film.FirstActor.Nationality, BirthDay = film.FirstActor.BirthDay });
+                        firstActorId = _personneDao.GetPersonne(film.FirstActor.FirstName, film.FirstActor.LastName).Result.Id;
                     }
-                    else
+
+                    try
                     {
+                        var writer = _personneDao.GetPersonne(film.Scenarist.FirstName, film.Scenarist.LastName).Result;
                         writerId = writer.Id;
+                    }
+                    catch (NotFoundException e)
+                    {
+                        await _personneDao.InsertPersonne(new PersonneDto
+                                                {
+                                                    FirstName = film.Scenarist.FirstName, LastName = film.Scenarist.LastName,
+                                                    Nationality = film.Scenarist.Nationality, BirthDay = film.Scenarist.BirthDay
+                                                });
+                        writerId = _personneDao.GetPersonne(film.Scenarist.FirstName, film.Scenarist.LastName).Result.Id;
                     }
                     
                     var bluRay = new BluRayDto
@@ -241,7 +253,7 @@ namespace VideoTheque.Businesses.Film
                         IdOwner = idHost
                     };
                     
-                    _filmDao.InsertBluRay(bluRay);
+                    await _filmDao.InsertBluRay(bluRay);
                     return bluRay;
                     
 

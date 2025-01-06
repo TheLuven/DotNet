@@ -44,6 +44,7 @@ namespace VideoTheque.Controllers
         {
             try
             {
+                title = title.Replace("%20", " ");
                _empruntBusiness.DeleteEmprunt(title); 
                return Results.NoContent();
             }
