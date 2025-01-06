@@ -43,11 +43,9 @@ namespace VideoTheque.Controllers
         [HttpPost]
         public async Task<IResult> InsertPersonne([FromBody] PersonneViewModel personneVM)
         {
-            if(GetPersonne(personneVM.FirstName, personneVM.LastName).Id != 0)
-            {
-                _logger.LogWarning("Personne already exists");
-                return Results.BadRequest("Personne already exists");
-            }
+            PersonneDto personne = 
+            try_personneBusiness.GetPersonne(personneVM.FirstName, personneVM.LastName
+                
             _logger.LogInformation("Creating personne");
             var created = _personneBusiness.InsertPersonne(personneVM.Adapt<PersonneDto>());
             _logger.LogInformation($"Personne {created.Id} created");
