@@ -14,15 +14,19 @@ using VideoTheque.Repositories.Genres;
 using VideoTheque.Repositories.Host;
 using VideoTheque.Repositories.PersonneRepository;
 using VideoTheque.Repositories.Support;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("Videotheque") ?? "Data Source=Videotheque.db";
 
-// Configure logging
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console() // Optional: log to console
+    .WriteTo.File("Logs/BluRayLogs.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Replace default logger with Serilog
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
