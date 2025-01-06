@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using VideoTheque.Context;
+using VideoTheque.Core;
 using VideoTheque.DTOs;
 
 namespace VideoTheque.Repositories.Genres
@@ -18,7 +19,10 @@ namespace VideoTheque.Repositories.Genres
 
         public ValueTask<GenreDto?> GetGenre(int id) => _db.Genres.FindAsync(id);
         
-        public Task<GenreDto?> GetGenre(string filmVmGenre) => _db.Genres.FirstOrDefaultAsync(g => g.Name == filmVmGenre);
+        public async Task<GenreDto?> GetGenre(string filmVmGenre)
+        {
+            return await _db.Genres.FirstOrDefaultAsync(g => g.Name == filmVmGenre) ?? throw new NotFoundException();
+        }
 
         public Task InsertGenre(GenreDto genre) 
         {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.OpenApi.Models;
 using VideoTheque.Businesses.AgeRating;
+using VideoTheque.Businesses.Emprunt;
 using VideoTheque.Businesses.Film;
 using VideoTheque.Businesses.Genres;
 using VideoTheque.Businesses.Host;
@@ -9,11 +10,13 @@ using VideoTheque.Businesses.Support;
 using VideoTheque.Context;
 using VideoTheque.Core;
 using VideoTheque.Repositories.AgeRating;
+using VideoTheque.Repositories.Emprunt;
 using VideoTheque.Repositories.Film;
 using VideoTheque.Repositories.Genres;
 using VideoTheque.Repositories.Host;
 using VideoTheque.Repositories.PersonneRepository;
 using VideoTheque.Repositories.Support;
+using VideoTheque.Configurations;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +60,11 @@ builder.Services.AddScoped(typeof(ISupportBusiness), typeof(SupportBusiness));
 builder.Services.AddScoped(typeof(IHostRepository), typeof(HostRepository));
 builder.Services.AddScoped(typeof(IHostBusiness), typeof(HostBusiness));
 
+builder.Services.AddScoped(typeof(IEmpruntRepository), typeof(EmpruntRepository));
+builder.Services.AddScoped(typeof(IEmpruntBusiness), typeof(EmpruntBusiness));
+
+MapsterConfig.RegisterMappings();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -79,15 +87,15 @@ builder.Services.AddCors(option => option
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vid�oTh�que API V1");
     });
-}
+//}
 
 app.UseRouting();
 

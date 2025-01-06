@@ -14,6 +14,8 @@ namespace VideoTheque.Repositories.Film
             _db = db;
         }
         public Task<List<BluRayDto>> GetBluRays() => _db.BluRays.ToListAsync();
+        
+        public Task<BluRayDto?> GetBluRay(string title) => _db.BluRays.FirstOrDefaultAsync(b => b.Title == title);
 
         public Task InsertBluRay(BluRayDto bluRay)
         {
@@ -29,7 +31,12 @@ namespace VideoTheque.Repositories.Film
             {
                 throw new KeyNotFoundException($"BluRay '{id}' non trouvé");
             }
-            
+
+            if (bluRayToDelete.IsAvailable == false)
+            {
+                throw new InvalidOperationException($"BluRay '{id}' non disponible");
+            }
+
             _db.BluRays.Remove(bluRayToDelete);
             return _db.SaveChangesAsync();
         }

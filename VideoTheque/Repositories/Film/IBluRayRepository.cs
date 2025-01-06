@@ -8,6 +8,8 @@ namespace VideoTheque.Repositories.Film
         
         ValueTask<BluRayDto?> GetBluRay(int id);
         
+        Task<BluRayDto?> GetBluRay(string title);
+        
         Task InsertBluRay(BluRayDto bluRay);
         
         Task UpdateBluRay(int id, BluRayDto bluRay);

@@ -4,6 +4,7 @@ using VideoTheque.Businesses.AgeRating;
 using VideoTheque.Businesses.Film;
 using VideoTheque.Businesses.Genres;
 using VideoTheque.Businesses.Personne;
+using VideoTheque.Businesses.Host;
 using VideoTheque.DTOs;
 using VideoTheque.Repositories.AgeRating;
 using VideoTheque.Repositories.Genres;
@@ -21,13 +22,15 @@ namespace VideoTheque.Controllers
         private readonly IAgeRatingRepository _ageRatingRepository;
         private readonly IGenresRepository _genresRepository;
         protected readonly ILogger<BluRayController> _logger;
+        protected readonly IHostBusiness _hostBusiness;
 
         public BluRayController(ILogger<BluRayController> logger, IBluRayBusiness bluRayBusiness,
             IPersonneRepository personneRepository, IAgeRatingRepository ageRatingRepository,
-            IGenresRepository genresRepository)
+            IGenresRepository genresRepository, IHostBusiness hostBusiness)
         {
             _logger = logger;
             _bluRayBusiness = bluRayBusiness;
+            _hostBusiness = hostBusiness;
             _personneRepository = personneRepository;
             _ageRatingRepository = ageRatingRepository;
             _genresRepository = genresRepository;
@@ -233,6 +236,22 @@ namespace VideoTheque.Controllers
             _logger.LogInformation("Deleting BluRay with id {id}", id);
             _bluRayBusiness.DeleteBluRay(id);
             return Results.Ok();
+        }
+
+
+        [HttpGet("{idHost}/available")]
+        public async Task<List<EmpruntViewModel?>> GetEmpruntAvailable([FromRoute] int idHost)
+        {
+            
+			var films_available = await _bluRayBusiness.GetEmpruntAvailable(idHost);
+            return films_available.Adapt<List<EmpruntViewModel>>();
+        }
+
+		[HttpPost("{idHost}/{idFilm}")]
+        public async Task<IResult> AddEmprunt([FromRoute] int idHost, [FromRoute] int idFilm)
+        {
+            var created = await _bluRayBusiness.AddFilmByEmprunt(idHost, idFilm);
+			return Results.Created($"/films/{created.Id}", created);
         }
     }
 }
