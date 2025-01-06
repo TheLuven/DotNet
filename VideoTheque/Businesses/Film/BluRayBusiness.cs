@@ -82,37 +82,42 @@ namespace VideoTheque.Businesses.Film
             try
             {
                 var film = _filmDao.GetBluRay(id).Result;
-                            if (film != null && film.IdOwner != null)
-                            {
-                                var host = _hostRepository.GetHost(film.IdOwner.Value);
-                                
-                                var title = film.Title.Replace("%20"," ");
-                               
-                                var client = new HttpClient();
-                                
-                                _logger.LogInformation("Suppression du film {0} chez l'hôte {1}", title, host.Result.Url);
-                                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{title}");
-                                if (!response.IsSuccessStatusCode)
-                                {
-                                    _logger.LogError("Erreur lors de la suppression du film {0}", title);
-                                    throw new InternalErrorException($"Erreur lors de la suppression du film {film.Title}, le film n'a pas été rendu");
-                                }
-                                                
-                            }
-                            _logger.LogInformation("Suppression du film {0}", film.Title);
-                            if (film != null && film.IsAvailable != true && film.IdOwner == null)
-                            {
-                                throw new InternalErrorException("Le film ne peut pas être supprimé car il est emprunté par un partenaire");
-                            }
-                            if (_filmDao.DeleteBluRay(id).IsFaulted)
-                            {
-                                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", id);
-                                throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id}");
-                            }
+                if (film != null && film.IdOwner != null)
+                {
+                    var host = _hostRepository.GetHost(film.IdOwner.Value);
+
+                    var title = film.Title.Replace("%20", " ");
+                    var client = new HttpClient();
+                    _logger.LogInformation("Suppression du film {0} chez l'hôte {1}", title, host.Result.Url);
+                    HttpResponseMessage response = 
+                        await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{title}");
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        _logger.LogError("Erreur lors de la suppression du film {0}", title);
+                        throw new InternalErrorException(
+                            $"Erreur lors de la suppression du film {film.Title}, le film n'a pas été rendu");
+                    }
+
+                }
+
+                _logger.LogInformation("Suppression du film {0}", film.Title);
+                if (film != null && film.IsAvailable != true && film.IdOwner == null)
+                {
+                    throw new InternalErrorException(
+                        "Le film ne peut pas être supprimé car il est emprunté par un partenaire");
+                }
+
+                if (_filmDao.DeleteBluRay(id).IsFaulted)
+                {
+                    _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", id);
+                    throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id}");
+                }
+            
             }
             catch (Exception e)
             {
-                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", id);
+                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", e.Message);
+               // throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id} : " + e.Message);
             }
             
         }
