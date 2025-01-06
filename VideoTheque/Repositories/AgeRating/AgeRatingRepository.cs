@@ -19,10 +19,8 @@ namespace VideoTheque.Repositories.AgeRating
 
         public ValueTask<AgeRatingDto?> GetAgeRating(int id) => _db.AgeRatings.FindAsync(id);
 
-        public async Task<AgeRatingDto?> GetAgeRating(string filmVmAgeRating)
-        {
-            return await _db.AgeRatings.FirstOrDefaultAsync(a => a.Name == filmVmAgeRating)  ?? throw new NotFoundException();
-        } 
+        public Task<AgeRatingDto?> GetAgeRating(string filmVmAgeRating) =>
+            _db.AgeRatings.FirstOrDefaultAsync(a => a.Name == filmVmAgeRating);
 
         public async Task InsertAgeRating(AgeRatingDto ageRating)
         {

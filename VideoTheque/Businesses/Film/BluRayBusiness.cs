@@ -1,5 +1,4 @@
 
-
 using VideoTheque.Core;
 using VideoTheque.DTOs;
 using VideoTheque.Repositories.AgeRating;
@@ -22,13 +21,14 @@ namespace VideoTheque.Businesses.Film
         private readonly IHostRepository _hostRepository;
         private readonly ILogger<BluRayBusiness> _logger;
 
-        public BluRayBusiness(IBluRayRepository filmDao, IPersonneRepository personneDao, IGenresRepository genresRepository, IAgeRatingRepository ageRatingRepository, IHostRepository hostRepository)
+        public BluRayBusiness(IBluRayRepository filmDao, IPersonneRepository personneDao, IGenresRepository genresRepository, IAgeRatingRepository ageRatingRepository, IHostRepository hostRepository,ILogger<BluRayBusiness> logger)
         {
             _filmDao = filmDao;
             _personneDao = personneDao;
             _genresRepository = genresRepository;
             _ageRatingRepository = ageRatingRepository;
             _hostRepository = hostRepository;
+            _logger = logger;
         }
 
         private string GetPersonFullName(int personId)
@@ -79,26 +79,42 @@ namespace VideoTheque.Businesses.Film
 
         public async void DeleteBluRay(int id)
         {
-            var film = _filmDao.GetBluRay(id).Result;
-            if (film != null && film.IdOwner != null)
+            try
             {
-                var host = _hostRepository.GetHost(film.IdOwner.Value);
-                
-                var title = film.Title.Replace("%20"," ");
-               
-                var client = new HttpClient();
-                
-                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{title}");
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new InternalErrorException($"Erreur lors de la suppression du film {film.Title}");
-                }
+                var film = _filmDao.GetBluRay(id).Result;
+                            if (film != null && film.IdOwner != null)
+                            {
+                                var host = _hostRepository.GetHost(film.IdOwner.Value);
                                 
+                                var title = film.Title.Replace("%20"," ");
+                               
+                                var client = new HttpClient();
+                                
+                                _logger.LogInformation("Suppression du film {0} chez l'hôte {1}", title, host.Result.Url);
+                                HttpResponseMessage response = await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{title}");
+                                if (!response.IsSuccessStatusCode)
+                                {
+                                    _logger.LogError("Erreur lors de la suppression du film {0}", title);
+                                    throw new InternalErrorException($"Erreur lors de la suppression du film {film.Title}, le film n'a pas été rendu");
+                                }
+                                                
+                            }
+                            _logger.LogInformation("Suppression du film {0}", film.Title);
+                            if (film != null && film.IsAvailable != true && film.IdOwner == null)
+                            {
+                                throw new InternalErrorException("Le film ne peut pas être supprimé car il est emprunté par un partenaire");
+                            }
+                            if (_filmDao.DeleteBluRay(id).IsFaulted)
+                            {
+                                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", id);
+                                throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id}");
+                            }
             }
-            if (_filmDao.DeleteBluRay(id).IsFaulted)
+            catch (Exception e)
             {
-                throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id}");
+                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", id);
             }
+            
         }
 
         public void UpdateBluRay(int id, BluRayDto film)
@@ -136,6 +152,7 @@ namespace VideoTheque.Businesses.Film
         {
             var client = new HttpClient();
             var ipHost = await _hostRepository.GetHost(idHost);
+            _logger.LogInformation("Get emprunt available from host {0}", ipHost.Url);
             HttpResponseMessage response = await client.GetAsync($"http://{ipHost.Url}:5000/emprunt/dispo");
             if (response.IsSuccessStatusCode)
             {
@@ -177,10 +194,12 @@ namespace VideoTheque.Businesses.Film
 
                     try
                     {
+                        _logger.LogInformation("Recherche du genre ...");
                         var genre = _genresRepository.GetGenre(film.Genre.Name).Result;
+                        _logger.LogInformation("Genre trouvé : {0}", genre.Name);
                         genreId = genre.Id;
                     }
-                    catch (NotFoundException e)
+                    catch (Exception e)
                     {
                         await _genresRepository.InsertGenre(new GenreDto { Name = film.Genre.Name });
                         genreId = _genresRepository.GetGenre(film.Genre.Name).Result.Id;
@@ -188,21 +207,29 @@ namespace VideoTheque.Businesses.Film
 
                     try
                     {
-                        var ageRating = _ageRatingRepository.GetAgeRating(film.AgeRating.Abreviation).Result;
+                        _logger.LogInformation("Recherche de l'age rating ...");
+                        var ageRating = _ageRatingRepository.GetAgeRating(film.AgeRating.Name).Result;
+                        if (ageRating == null)
+                        {
+                            throw new NotFoundException();
+                        }
+                        _logger.LogInformation("Age rating trouvé : {0}", ageRating.Name);
                         ageRatingId = ageRating.Id;
                     }
-                    catch (NotFoundException e)
+                    catch (Exception e)
                     {
                          await _ageRatingRepository.InsertAgeRating(new AgeRatingDto { Abreviation = film.AgeRating.Abreviation, Name = film.AgeRating.Name });
-                                                ageRatingId = _ageRatingRepository.GetAgeRating(film.AgeRating.Abreviation).Result.Id;
+                         ageRatingId = _ageRatingRepository.GetAgeRating(film.AgeRating.Name).Result.Id;
                     }
 
                     try
                     {
+                        _logger.LogInformation("Recherche du director ...");
                         var director = _personneDao.GetPersonne(film.Director.FirstName, film.Director.LastName).Result;
+                        _logger.LogInformation("Director trouvé : {0}", director.FirstName);
                         directorId = director.Id;
                     }
-                    catch (NotFoundException e)
+                    catch (Exception e)
                     {
                         await _personneDao.InsertPersonne(new PersonneDto
                         {
@@ -215,11 +242,13 @@ namespace VideoTheque.Businesses.Film
 
                     try
                     {
+                        _logger.LogInformation("Recherche du first actor ...");
                         var firstActor = _personneDao.GetPersonne(film.FirstActor.FirstName, film.FirstActor.LastName)
                             .Result;
+                        _logger.LogInformation("First actor trouvé : {0}", firstActor.FirstName);
                         firstActorId = firstActor.Id;
                     }
-                    catch (NotFoundException e)
+                    catch (Exception e)
                     {
                         await _personneDao.InsertPersonne(new PersonneDto { FirstName = film.FirstActor.FirstName, LastName = film.FirstActor.LastName, Nationality = film.FirstActor.Nationality, BirthDay = film.FirstActor.BirthDay });
                         firstActorId = _personneDao.GetPersonne(film.FirstActor.FirstName, film.FirstActor.LastName).Result.Id;
@@ -227,16 +256,18 @@ namespace VideoTheque.Businesses.Film
 
                     try
                     {
+                        _logger.LogInformation("Recherche du writer ...");
                         var writer = _personneDao.GetPersonne(film.Scenarist.FirstName, film.Scenarist.LastName).Result;
                         writerId = writer.Id;
                     }
-                    catch (NotFoundException e)
+                    catch (Exception e)
                     {
                         await _personneDao.InsertPersonne(new PersonneDto
                                                 {
                                                     FirstName = film.Scenarist.FirstName, LastName = film.Scenarist.LastName,
                                                     Nationality = film.Scenarist.Nationality, BirthDay = film.Scenarist.BirthDay
                                                 });
+                        _logger.LogInformation("Writer trouvé : {0}", film.Scenarist.FirstName);
                         writerId = _personneDao.GetPersonne(film.Scenarist.FirstName, film.Scenarist.LastName).Result.Id;
                     }
                     
@@ -252,9 +283,12 @@ namespace VideoTheque.Businesses.Film
                         IsAvailable = false,
                         IdOwner = idHost
                     };
+
+                    _logger.LogInformation("Insertion du film ", bluRay);
                     
                     await _filmDao.InsertBluRay(bluRay);
                     return bluRay;
+                    
                     
 
                 }

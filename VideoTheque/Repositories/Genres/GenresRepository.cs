@@ -21,7 +21,12 @@ namespace VideoTheque.Repositories.Genres
         
         public async Task<GenreDto?> GetGenre(string filmVmGenre)
         {
-            return await _db.Genres.FirstOrDefaultAsync(g => g.Name == filmVmGenre) ?? throw new NotFoundException();
+            var genre = _db.Genres.FirstOrDefaultAsync(g => g.Name == filmVmGenre).Result;
+            if (genre is null)
+            {
+                throw new NotFoundException();
+            }
+            return genre;
         }
 
         public Task InsertGenre(GenreDto genre) 

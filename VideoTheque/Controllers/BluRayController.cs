@@ -233,8 +233,16 @@ namespace VideoTheque.Controllers
         [HttpDelete("{id}")]
         public async Task<IResult> DeleteBluRay([FromRoute] int id)
         {
-            _logger.LogInformation("Deleting BluRay with id {id}", id);
-            _bluRayBusiness.DeleteBluRay(id);
+            try
+            {
+                _logger.LogInformation("Deleting BluRay with id {id}", id);
+                _bluRayBusiness.DeleteBluRay(id);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                return Results.BadRequest("An error occurred while processing the request : " + ex.Message);
+            }
             return Results.Ok();
         }
 
