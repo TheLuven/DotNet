@@ -1,6 +1,8 @@
 using Mapster;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VideoTheque.Businesses.Personne;
+using VideoTheque.Core;
 using VideoTheque.DTOs;
 using VideoTheque.ViewModels;
 
@@ -43,13 +45,17 @@ namespace VideoTheque.Controllers
         [HttpPost]
         public async Task<IResult> InsertPersonne([FromBody] PersonneViewModel personneVM)
         {
-            PersonneDto personne = 
-            try_personneBusiness.GetPersonne(personneVM.FirstName, personneVM.LastName
-                
-            _logger.LogInformation("Creating personne");
-            var created = _personneBusiness.InsertPersonne(personneVM.Adapt<PersonneDto>());
-            _logger.LogInformation($"Personne {created.Id} created");
-            return Results.Created($"/personnes/{created.Id}", created);
+            try
+            {
+                _personneBusiness.GetPersonne(personneVM.FirstName, personneVM.LastName);}
+            catch (NotFoundException e)
+            {
+                _logger.LogInformation("Creating personne");
+                var created = _personneBusiness.InsertPersonne(personneVM.Adapt<PersonneDto>());
+                _logger.LogInformation($"Personne {created.Id} created");
+                return Results.Created($"/personnes/{created.Id}", created);
+            }
+            return Results.BadRequest("Personne already exists");
         }
         
         [HttpPut("{id}")]
