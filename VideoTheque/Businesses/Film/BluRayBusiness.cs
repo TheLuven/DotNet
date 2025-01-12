@@ -1,4 +1,3 @@
-
 using VideoTheque.Core;
 using VideoTheque.DTOs;
 using VideoTheque.Repositories.AgeRating;
@@ -20,6 +19,7 @@ namespace VideoTheque.Businesses.Film
         private readonly IAgeRatingRepository _ageRatingRepository;
         private readonly IHostRepository _hostRepository;
         private readonly ILogger<BluRayBusiness> _logger;
+        private readonly HttpClient _httpClient;
 
         public BluRayBusiness(IBluRayRepository filmDao, IPersonneRepository personneDao, IGenresRepository genresRepository, IAgeRatingRepository ageRatingRepository, IHostRepository hostRepository,ILogger<BluRayBusiness> logger)
         {
@@ -29,6 +29,7 @@ namespace VideoTheque.Businesses.Film
             _ageRatingRepository = ageRatingRepository;
             _hostRepository = hostRepository;
             _logger = logger;
+            _httpClient = new HttpClient();
         }
 
         private string GetPersonFullName(int personId)
@@ -77,25 +78,24 @@ namespace VideoTheque.Businesses.Film
             return film;
         }
 
-        public async void DeleteBluRay(int id)
+        public async Task DeleteBluRay(int id)
         {
             try
             {
-                var film = _filmDao.GetBluRay(id).Result;
+                var film = await _filmDao.GetBluRay(id);
                 if (film != null && film.IdOwner != null)
                 {
-                    var host = _hostRepository.GetHost(film.IdOwner.Value);
+                    var host = await _hostRepository.GetHost(film.IdOwner.Value);
 
                     var title = film.Title.Replace("%20", " ");
-                    var client = new HttpClient();
-                    _logger.LogInformation("Suppression du film {0} chez l'hôte {1}", title, host.Result.Url);
+                    _logger.LogInformation("Suppression du film {0} chez l'hôte {1}", title, host.Url);
                     HttpResponseMessage response = 
-                        await client.DeleteAsync($"http://{host.Result.Url}:5000/emprunt/{title}");
+                        await _httpClient.DeleteAsync($"http://{host.Url}:5000/emprunt/{title}");
                     if (!response.IsSuccessStatusCode)
                     {
-                        _logger.LogError("Erreur lors de la suppression du film {0}", title);
+                        _logger.LogError("Erreur lors du rendu du film {0} au partenaire, code reponse {1}", title, response.StatusCode);
                         throw new InternalErrorException(
-                            $"Erreur lors de la suppression du film {film.Title}, le film n'a pas été rendu");
+                            $"Erreur lors du rendu du film {film.Title}, le film n'a pas été rendu");
                     }
 
                 }
@@ -106,18 +106,21 @@ namespace VideoTheque.Businesses.Film
                     throw new InternalErrorException(
                         "Le film ne peut pas être supprimé car il est emprunté par un partenaire");
                 }
-
-                if (_filmDao.DeleteBluRay(id).IsFaulted)
+                await _filmDao.DeleteBluRay(id);
+                /*var deleteResult = _filmDao.DeleteBluRay(id);
+                await deleteResult;
+                if (deleteResult.IsFaulted)
                 {
-                    _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", id);
+                    _logger.LogError("Erreur lors de la suppression du film d'identifiant {0} : {1}, ", id,deleteResult.Exception?.Message );
                     throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id}");
                 }
+                _logger.LogInformation("Film supprimé");*/
             
             }
             catch (Exception e)
             {
-                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0}", e.Message);
-               // throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id} : " + e.Message);
+                _logger.LogError("Erreur lors de la suppression du film d'identifiant {0} car {1}",id ,e.Message);
+                throw new InternalErrorException($"Erreur lors de la suppression du film d'identifiant {id} car {e.Message}");  
             }
             
         }

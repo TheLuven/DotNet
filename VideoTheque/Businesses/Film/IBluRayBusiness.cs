@@ -12,7 +12,7 @@ namespace VideoTheque.Businesses.Film
        
        void UpdateBluRay(int id, BluRayDto film);
        
-       void DeleteBluRay(int id);
+       Task DeleteBluRay(int id);
        
        Task<List<EmpruntPauvreDto?>> GetEmpruntAvailable(int id);
        

@@ -54,9 +54,16 @@ namespace VideoTheque.Controllers
         [HttpDelete("{id}")]
         public async Task<IResult> DeleteHost([FromRoute] int id)
         {
-            _logger.LogInformation($"Deleting host {id}");
-            _hostBusiness.DeleteHost(id);
-            _logger.LogInformation($"Host {id} deleted");
+            try
+            {
+                _logger.LogInformation($"Deleting host {id}");
+                _hostBusiness.DeleteHost(id);
+                _logger.LogInformation($"Host {id} deleted");
+            }
+            catch (Exception e)
+            {
+                return Results.BadRequest(e.Message);
+            }
             return Results.Ok();
         }
     }

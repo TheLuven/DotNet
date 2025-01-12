@@ -1,5 +1,6 @@
 using VideoTheque.Core;
 using VideoTheque.DTOs;
+using VideoTheque.Repositories.Film;
 using VideoTheque.Repositories.Host;
 
 namespace VideoTheque.Businesses.Host
@@ -7,10 +8,12 @@ namespace VideoTheque.Businesses.Host
     public class HostBusiness: IHostBusiness
     {
         private readonly IHostRepository _hostDao;
+        private readonly IBluRayRepository _bluRayDao;
 
-        public HostBusiness(IHostRepository hostDao)
+        public HostBusiness(IHostRepository hostDao, IBluRayRepository bluRayDao)
         {
             _hostDao = hostDao;
+            _bluRayDao = bluRayDao;
         }
 
         public Task<List<HostDto>> GetHosts() => _hostDao.GetHosts();
@@ -47,10 +50,19 @@ namespace VideoTheque.Businesses.Host
 
         public void DeleteHost(int id)
         {
-            if (_hostDao.DeleteHost(id).IsFaulted)
+            var isHostUsed = _bluRayDao.HasBluRayByOwner(id).Result;
+            if (!isHostUsed)
             {
-                throw new InternalErrorException($"Erreur lors de la suppression du host d'identifiant {id}");
+                if (_hostDao.DeleteHost(id).IsFaulted)
+                { 
+                    throw new InternalErrorException($"Erreur lors de la suppression du host d'identifiant {id}");
+                }
             }
+            else
+            {
+                throw new InvalidOperationException($"Le host d'identifiant {id} est utilis� par un ou plusieurs BluRay(s)");
+            }
+            
         }
     }
 }

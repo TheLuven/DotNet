@@ -8,10 +8,12 @@ namespace VideoTheque.Repositories.Film
     {
         
         private readonly VideothequeDb _db;
+        private readonly ILogger<BluRayRepository> _logger;
         
-        public BluRayRepository(VideothequeDb db)
+        public BluRayRepository(VideothequeDb db,ILogger<BluRayRepository> logger)
         {
             _db = db;
+            _logger = logger;
         }
         public Task<List<BluRayDto>> GetBluRays() => _db.BluRays.ToListAsync();
         
@@ -23,22 +25,25 @@ namespace VideoTheque.Repositories.Film
             return _db.SaveChangesAsync();
         }
 
-        public Task DeleteBluRay(Int32 id)
+        public async Task DeleteBluRay(Int32 id)
         {
-            var bluRayToDelete = _db.BluRays.FindAsync(id).Result;
-            
+            _logger.LogInformation($"Commencement de la suppression du BluRay '{id}'");
+            var bluRayToDelete = await _db.BluRays.FindAsync(id);
+            _logger.LogInformation($"BluRay '{id}' trouvé");
             if (bluRayToDelete is null)
             {
                 throw new KeyNotFoundException($"BluRay '{id}' non trouvé");
             }
+            _logger.LogInformation($"delete id '{id}' trouvé");
 
-            if (bluRayToDelete.IsAvailable == false)
+            /*if (bluRayToDelete.IsAvailable == false)
             {
                 throw new InvalidOperationException($"BluRay '{id}' non disponible");
-            }
+            }*/
 
             _db.BluRays.Remove(bluRayToDelete);
-            return _db.SaveChangesAsync();
+            _logger.LogInformation($"BluRay '{id}' supprimé");
+            await _db.SaveChangesAsync();
         }
 
         public Task UpdateBluRay(int id, BluRayDto bluRay)
@@ -64,5 +69,11 @@ namespace VideoTheque.Repositories.Film
         }
 
         public ValueTask<BluRayDto?> GetBluRay(int id) => _db.BluRays.FindAsync(id);
+        
+        public async Task<bool> HasBluRayByOwner(int idOwner)
+        {
+            var bluRay = await _db.BluRays.FirstOrDefaultAsync(b => b.IdOwner == idOwner);
+            return bluRay != null;
+        }
     }
 }

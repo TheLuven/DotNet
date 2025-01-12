@@ -236,7 +236,7 @@ namespace VideoTheque.Controllers
             try
             {
                 _logger.LogInformation("Deleting BluRay with id {id}", id);
-                _bluRayBusiness.DeleteBluRay(id);
+                await _bluRayBusiness.DeleteBluRay(id);
             }
             catch(Exception ex)
             {

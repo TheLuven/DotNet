@@ -15,5 +15,7 @@ namespace VideoTheque.Repositories.Film
         Task UpdateBluRay(int id, BluRayDto bluRay);
         
         Task DeleteBluRay(int id);
+
+        Task<bool> HasBluRayByOwner(int idOwner);
     }
 }
